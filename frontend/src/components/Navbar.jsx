@@ -28,7 +28,7 @@ const Navbar = () => {
   }, [isAuthenticated, role]);
 
   const handleMouseEnter = () => {
-    setHoveredDropdown("adminPanel");
+    setHoveredDropdown("adminRoute");
   };
 
   const handleMouseLeave = () => {
@@ -129,7 +129,12 @@ const Navbar = () => {
               >
                 <ul className="flex flex-col items-start space-y-4">
                   <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
-                    <Link to="/GalleryManagement">Gallery Management</Link>
+                    <Link
+                      to="/admin/dashboard"
+                      className="mr-4 text-yellow-400"
+                    >
+                      Admin Dashboard
+                    </Link>
                   </li>
                   <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
                     <Link to="/Admin/Venue">Venue Management</Link>

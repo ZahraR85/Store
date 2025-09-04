@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import axios from "axios";
 
-const AppContext = createContext();
+export const AppContext = createContext();
 
 // Initial state (only auth-related stuff)
 const initialState = {
@@ -76,4 +76,3 @@ export const AppProvider = ({ children }) => {
 };
 
 export const useAppContext = () => useContext(AppContext);
-export default AppContext;
