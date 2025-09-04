@@ -28,7 +28,7 @@ const AdminDashboard = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("http://localhost:3000/categories");
+      const response = await fetch("http://localhost:3001/categories");
       const data = await response.json();
       setCategories(data);
     } catch (error) {
@@ -38,7 +38,7 @@ const AdminDashboard = () => {
 
   const handleAddCategory = async () => {
     try {
-      const response = await fetch("http://localhost:3000/categories", {
+      const response = await fetch("http://localhost:3001/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
     const uploadedImages = await uploadImagesToCloudinary();
 
     try {
-      const response = await fetch("http://localhost:3000/products", {
+      const response = await fetch("http://localhost:3001/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...productData, images: uploadedImages }),
