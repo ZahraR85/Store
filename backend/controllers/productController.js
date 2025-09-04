@@ -1,25 +1,30 @@
 import Product from "../models/Product.js";
-import { v2 as cloudinary } from "cloudinary";
 
-// Create a new product
+// Create a product
 export const createProduct = async (req, res) => {
   try {
-      const { name, description, price, category, subcategory } = req.body;
-      const images = req.cloudinaryURLs || []; // Cloudinary image URLs
+    const { name, description, price, sizes, colors, category, subcategory, stock } = req.body;
 
-      const newProduct = new Product({
-          name,
-          description,
-          price,
-          category,
-          subcategory,
-          image: images, // Correctly store images
-      });
+    // Map uploaded files to URLs (already handled by cloudUploader middleware)
+    const images = req.files?.map(file => file.path) || [];
 
-      await newProduct.save();
-      res.status(201).json(newProduct);
+    const product = new Product({
+      name,
+      description,
+      price,
+      sizes,
+      colors,
+      images,
+      category,
+      subcategory,
+      stock,
+    });
+
+    await product.save();
+    res.status(201).json(product);
   } catch (error) {
-      res.status(500).json({ message: "Error adding product", error });
+    console.error("Create Product Error:", error);
+    res.status(500).json({ error: "Failed to create product" });
   }
 };
 
@@ -29,39 +34,61 @@ export const getAllProducts = async (req, res) => {
     const products = await Product.find().populate("category");
     res.json(products);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Get All Products Error:", error);
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 };
 
-// Get a single product by ID
+// Get product by ID
 export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate("category");
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    if (!product) return res.status(404).json({ error: "Product not found" });
     res.json(product);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Get Product Error:", error);
+    res.status(500).json({ error: "Failed to fetch product" });
   }
 };
 
-// Update a product
+// Update product
 export const updateProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    const { name, description, price, sizes, colors, category, subcategory, stock } = req.body;
+
+    const images = req.files?.map(file => file.path); // Replace images if new files uploaded
+
+    const updateData = {
+      name,
+      description,
+      price,
+      sizes,
+      colors,
+      category,
+      subcategory,
+      stock,
+    };
+
+    if (images && images.length > 0) updateData.images = images;
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    if (!product) return res.status(404).json({ error: "Product not found" });
+
     res.json(product);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error("Update Product Error:", error);
+    res.status(500).json({ error: "Failed to update product" });
   }
 };
 
-// Delete a product
+// Delete product
 export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    if (!product) return res.status(404).json({ error: "Product not found" });
     res.json({ message: "Product deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Delete Product Error:", error);
+    res.status(500).json({ error: "Failed to delete product" });
   }
 };
