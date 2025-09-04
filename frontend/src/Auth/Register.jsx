@@ -61,14 +61,9 @@ const Register = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-customBg">
       {/* Left Section: Form */}
-      <div className="relative w-full md:w-1/2 flex items-center justify-center min-h-screen bg-cover bg-center bg-[url('https://i.postimg.cc/4N3pY4S6/userinfo2.png')]">
-        {/* Overlay for controlling opacity */}
-        <div className="absolute inset-0 bg-white/50"></div>
-
-        {/* Centered Form */}
-        <div className="relative w-4/5 max-w-md bg-opacity-80 rounded-lg p-5 ml-14 mb-14 space-y-4">
-          {/*  <div className="w-1/2 flex justify-center items-center bg-customBg1">*/}
-          {/*  <div className="max-w-5xl w-4/5 p-16 bg-customBg shadow-lg rounded-lg space-y-5">*/}
+      <div className="w-full md:w-1/2 flex items-center justify-center min-h-screen">
+        {/* Centered Form Box */}
+        <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-10 space-y-6">
           <h2 className="text-3xl text-BgFont font-bold mb-10 text-center">
             Please Register!
           </h2>
@@ -84,7 +79,7 @@ const Register = () => {
             placeholder="Name"
             value={formData.name}
             onChange={handleChange}
-            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgPinkDark"
+            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgBlackLight"
           />
           <input
             type="text"
@@ -92,7 +87,7 @@ const Register = () => {
             placeholder="Last Name"
             value={formData.family}
             onChange={handleChange}
-            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgPinkDark"
+            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgBlackLight"
           />
           <input
             type="email"
@@ -100,7 +95,7 @@ const Register = () => {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
-            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgPinkDark"
+            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgBlackLight"
           />
           <input
             type="text"
@@ -108,7 +103,7 @@ const Register = () => {
             placeholder="Phone"
             value={formData.phone}
             onChange={handleChange}
-            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgPinkDark"
+            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgBlackLight"
           />
           <input
             type="password"
@@ -116,11 +111,11 @@ const Register = () => {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
-            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgPinkDark"
+            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgBlackLight"
           />
           <button
             onClick={handleRegister}
-            className="bg-BgPinkMiddle text-BgFont py-2 text-lg font-bold hover:bg-BgPinkDark rounded w-full"
+            className="bg-BgBlack text-white py-2 text-lg font-bold hover:bg-BgBlackLight rounded w-full"
           >
             Register
           </button>
@@ -130,7 +125,7 @@ const Register = () => {
       <div
         className="w-full md:w-1/2 flex justify-center items-center bg-cover bg-center"
         style={{
-          backgroundImage: "url('https://i.postimg.cc/9Qd0dqss/s2.jpg')",
+          backgroundImage: "url('https://i.postimg.cc/Gt6TTH3t/pick.jpg')",
         }}
       >
         {/* You can replace the URL with your desired image */}

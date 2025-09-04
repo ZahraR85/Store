@@ -46,25 +46,22 @@ const SignIn = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-customBg">
       {/* Left Section: Form */}
-      <div className="relative w-full md:w-1/2 flex items-center justify-center min-h-screen bg-cover bg-center bg-[url('https://i.postimg.cc/RVhWxyrV/userinfo3.png')]">
-        {/* Overlay for controlling opacity */}
-        <div className="absolute inset-0 bg-white/50"></div>
-
-        {/* Centered Form */}
-        <div className="relative w-4/5 max-w-md bg-opacity-80 rounded-lg p-5 ml-14 mb-14 space-y-4">
-          {/*  <div className="w-1/2 flex justify-center items-center bg-customBg1">*/}
-          {/*  <div className="max-w-5xl w-4/5 p-16 bg-customBg shadow-lg rounded-lg space-y-5">*/}
-          <h2 className="text-3xl text-BgFont font-bold mb-10 text-center">
+      <div className="w-full md:w-1/2 flex items-center justify-center min-h-screen">
+        {/* Centered Form Box */}
+        <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-10 space-y-6">
+          <h2 className="text-3xl font-bold text-center text-BgFont mb-5">
             Please Login!
           </h2>
+
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
           <input
             type="text"
             name="identifier"
             placeholder="Name or Email"
             value={formData.identifier}
             onChange={handleChange}
-            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgPinkDark"
+            className="block w-full p-2 border rounded border-BgBlack focus:outline-none focus:ring focus:ring-BgBlackLight"
           />
           <input
             type="password"
@@ -72,23 +69,24 @@ const SignIn = () => {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
-            className="block w-full p-2 border rounded border-BgPinkDark focus:outline-none focus:ring focus:ring-BgPinkDark"
+            className="block w-full p-2 border rounded border-BgBlack focus:outline-none focus:ring focus:ring-BgBlackLight"
           />
-          <div className="m-2 w-full text-start underline hover:decoration-2">
-            <Link to="/register" className="text-m text-BgFont">
+
+          <div className="text-start underline hover:decoration-2 text-sm">
+            <Link to="/register" className="text-BgFont">
               Forgot your password?
             </Link>
           </div>
+
           <button
             onClick={handleSignIn}
-            className="bg-BgPinkMiddle text-BgFont py-2 text-lg font-bold hover:bg-BgPinkDark rounded w-full"
+            className="bg-BgBlack text-white py-2 text-lg font-bold hover:bg-BgBlackLight rounded w-full"
           >
             Sign In
           </button>
-          <div className="m-5 w-full text-BgFont text-center underline hover:decoration-2">
-            <Link to="/register" className="text-m">
-              Create Account / Register
-            </Link>
+
+          <div className="text-center underline hover:decoration-2 text-BgFont text-sm">
+            <Link to="/register">Create Account / Register</Link>
           </div>
         </div>
       </div>
@@ -101,7 +99,6 @@ const SignIn = () => {
             "url('https://i.postimg.cc/sXN2SjZQ/Quiet-Luxury-fashion-12.jpg')",
         }}
       >
-        {/* You can replace the URL with your desired image */}
         <div className="w-full h-full"></div>
       </div>
     </div>
