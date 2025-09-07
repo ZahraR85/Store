@@ -4,7 +4,9 @@ import Layout from "./pages/Layout";
 import SignIn from "./Auth/SignIn.jsx";
 import Register from "./Auth/Register.jsx";
 import Homepage from "./pages/HomePage.jsx";
+import AdminRoute from "./pages/AdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+
 function App() {
   return (
     <Layout>
@@ -15,6 +17,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         {/* Admin Routes (commented out for now) */}
         <Route path="/admin" element={<AdminDashboard />} />
+
       </Routes>
     </Layout>
   );

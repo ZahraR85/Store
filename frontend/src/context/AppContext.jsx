@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import axios from "axios";
 
-const AppContext = createContext();
+export const AppContext = createContext();
 
 // Initial state
 const initialState = {

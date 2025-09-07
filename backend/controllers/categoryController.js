@@ -18,6 +18,8 @@ export const getCategories = async (req, res) => {
     const categories = await Category.find();
     res.json(categories);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching categories", error });
+
+    console.error("Get Categories Error:", error);
+    res.status(500).json({ error: "Failed to fetch categories" });
   }
 };
