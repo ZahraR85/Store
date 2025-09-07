@@ -15,15 +15,9 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/register" element={<Register />} />
-        {/* Protect Admin Dashboard Route */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
+        {/* Admin Routes (commented out for now) */}
+        <Route path="/admin" element={<AdminDashboard />} />
+
       </Routes>
     </Layout>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import logo from "../images/Logo.png";
 import {
@@ -12,17 +12,28 @@ import {
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [hoveredDropdown, setHoveredDropdown] = useState(null); // Local UI state for dropdown
-
-  const { isAuthenticated, role, signOut, shoppingCardCount } = useAppContext();
+  const {
+    userId,
+    setHoveredDropdown,
+    isAuthenticated,
+    role,
+    signOut,
+    shoppingCardCount,
+  } = useAppContext();
+  //const location = useLocation();
+  //const navigate = useNavigate();
 
   useEffect(() => {
-    // Debugging
-    // console.log("isAuthenticated:", isAuthenticated, "role:", role);
+    //console.log("isAuthenticated:", isAuthenticated, "role:", role);
   }, [isAuthenticated, role]);
 
-  const handleMouseEnter = () => setHoveredDropdown("adminRoute");
-  const handleMouseLeave = () => setHoveredDropdown(null);
+  const handleMouseEnter = () => {
+    setHoveredDropdown("adminPanel");
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredDropdown(null);
+  };
 
   return (
     <nav className="border-b bg-BgKhaki shadow-md sticky top-0 z-50">
@@ -34,7 +45,6 @@ const Navbar = () => {
         >
           <FaBars className="text-2xl" />
         </button>
-
         <div>
           <ul className="flex font-bold text-BgFont items-center space-x-12">
             <li>
@@ -51,13 +61,16 @@ const Navbar = () => {
                 Gallery
               </Link>
             </li>
+            {/* <li>
+              <Link to="/dashboard" className="hover:underline hidden lg:block">
+                Dashboard
+              </Link>
+            </li> */}
           </ul>
         </div>
-
         <Link to="/" className="hidden lg:block">
           <img src={logo} alt="Logo" className="h-16" />
         </Link>
-
         <ul className="flex font-bold text-BgFont items-center space-x-12">
           <li>
             <Link
@@ -96,52 +109,47 @@ const Navbar = () => {
         </ul>
       </div>
 
-      {/* Second Row (Admin dropdown) */}
+      {/* Second Row */}
       <div className="hidden text-BgFont items-center justify-around bg-gray-100 px-4 py-2 text-sm md:flex">
         <ul className="flex font-bold items-center justify-around space-x-12 text-sm">
+          {/* Admin Panel dropdown moved here */}
           {isAuthenticated && role === "admin" && (
-            <li className="relative">
+            <li className="relative group">
               <span
-                className="hover:underline cursor-pointer"
+                className="hover:underline"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
                 Admin Panel
               </span>
-
               {/* Dropdown */}
-              {hoveredDropdown === "adminRoute" && (
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-[200px] max-w-[50vw] bg-gray-100 text-BgFont shadow-lg mt-2 p-4">
-                  <ul className="flex flex-col items-start space-y-4">
-                    <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
-                      <Link
-                        to="/admin/dashboard"
-                        className="mr-4 text-yellow-400"
-                      >
-                        Admin Dashboard
-                      </Link>
-                    </li>
-                    <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
-                      <Link to="/Admin/Venue">Venue Management</Link>
-                    </li>
-                    <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
-                      <Link to="/Admin/AdminCatering">Catering Management</Link>
-                    </li>
-                    <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
-                      <Link to="/AdminMusicOption">Music Management</Link>
-                    </li>
-                    <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
-                      <Link to="/Admin/AdminDesign">Design Management</Link>
-                    </li>
-                  </ul>
-                </div>
-              )}
+              <div
+                className="absolute top-full left-1/2 transform -translate-x-1/2 w-[200px] max-w-[50vw] bg-gray-100 text-BgFont shadow-lg mt-2 p-4 opacity-0 group-hover:opacity-100 
+                group-hover:visible group-hover:translate-y-0 transition-all duration-300"
+              >
+                <ul className="flex flex-col items-start space-y-4">
+                  <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
+                    <Link to="/admin">Admin Pannel</Link>
+                  </li>
+                </ul>
+              </div>
             </li>
           )}
+          {/*<li className="hover:underline">
+            <Link
+              to="/ReceptionSelector"
+              className="text-BgFont hover:underline"
+            >
+              Reception
+            </Link>
+          </li>
+          <li className="hover:underline">
+            <Link to="/cateringPage">Catering</Link>
+          </li>*/}
         </ul>
       </div>
 
-      {/* Mobile Side Menu */}
+      {/* Side Menu for Mobile */}
       {menuOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div className="w-64 bg-BgKhaki shadow-lg">
@@ -173,39 +181,12 @@ const Navbar = () => {
               >
                 Book your Venue
               </Link>
-
-              {/* Admin Mobile Links */}
+              {/* Admin Panel dropdown moved here */}
               {isAuthenticated && role === "admin" && (
-                <div className="flex flex-col gap-4 mt-4">
-                  <Link
-                    to="/GalleryManagement"
-                    className="text-BgFont hover:underline"
-                  >
-                    Gallery Management
-                  </Link>
-                  <Link
-                    to="/Admin/Venue"
-                    className="text-BgFont hover:underline"
-                  >
-                    Venue Management
-                  </Link>
-                  <Link
-                    to="/Admin/AdminCatering"
-                    className="text-BgFont hover:underline"
-                  >
-                    Catering Management
-                  </Link>
-                  <Link
-                    to="/AdminMusicOption"
-                    className="text-BgFont hover:underline"
-                  >
-                    Music Management
-                  </Link>
-                  <Link
-                    to="/Admin/AdminDesign"
-                    className="text-BgFont hover:underline"
-                  >
-                    Design Management
+                <div className="flex flex-col gap-4">
+                  <br />
+                  <Link to="/admin" className="text-BgFont hover:underline">
+                    Admin Panel
                   </Link>
                 </div>
               )}

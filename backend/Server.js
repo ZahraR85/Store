@@ -46,7 +46,8 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/users", usersRouter);
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
-app.use('/categories', categoryRoutes);
+app.use("/categories", categoryRoutes);
+
 // Default route
 app.get("/", (req, res) => {
   res.send("API is running...");
