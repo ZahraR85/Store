@@ -129,34 +129,7 @@ const Navbar = () => {
               >
                 <ul className="flex flex-col items-start space-y-4">
                   <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
-                    <Link to="/GalleryManagement">Gallery Management</Link>
-                  </li>
-                  <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
-                    <Link to="/Admin/Venue">Venue Management</Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/Admin/AdminCatering"
-                      className="hover:underline hover:bg-BgKhaki p-2 rounded-md"
-                    >
-                      Catering Management
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/AdminMusicOption"
-                      className="hover:underline hover:bg-BgKhaki p-2 rounded-md"
-                    >
-                      Music Management
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/Admin/AdminDesign"
-                      className="hover:underline hover:bg-BgKhaki p-2 rounded-md"
-                    >
-                      Design Management
-                    </Link>
+                    <Link to="/admin">Admin Pannel</Link>
                   </li>
                 </ul>
               </div>
@@ -212,35 +185,8 @@ const Navbar = () => {
               {isAuthenticated && role === "admin" && (
                 <div className="flex flex-col gap-4">
                   <br />
-                  <Link
-                    to="/GalleryManagement"
-                    className="text-BgFont hover:underline"
-                  >
-                    Gallery Management
-                  </Link>
-                  <Link
-                    to="/Admin/Venue"
-                    className="text-BgFont hover:underline"
-                  >
-                    Venue Management
-                  </Link>
-                  <Link
-                    to="/Admin/AdminCatering"
-                    className="text-BgFont hover:underline"
-                  >
-                    Catering Management
-                  </Link>
-                  <Link
-                    to="/AdminMusicOption"
-                    className="text-BgFont hover:underline"
-                  >
-                    Music Management
-                  </Link>
-                  <Link
-                    to="/Admin/AdminDesign"
-                    className="text-BgFont hover:underline"
-                  >
-                    Design Management
+                  <Link to="/admin" className="text-BgFont hover:underline">
+                    Admin Panel
                   </Link>
                 </div>
               )}
