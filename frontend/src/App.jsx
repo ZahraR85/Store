@@ -15,9 +15,15 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/register" element={<Register />} />
-        {/* Admin Routes (commented out for now) */}
-        <Route path="/admin" element={<AdminDashboard />} />
-
+        {/* Protect Admin Dashboard Route */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
       </Routes>
     </Layout>
   );

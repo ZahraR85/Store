@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
-import { useAppContext } from "../context/AppContext.jsx";
+import { useContext, useState, useEffect } from "react";
+import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
 
-const Admin = () => {
-  const { userId, role } = useAppContext();
+const AdminDashboard = () => {
+  const { user, role } = useContext(AppContext);
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [categoryName, setCategoryName] = useState("");
   const [subcategories, setSubcategories] = useState("");
-  //  const [products, setProducts] = useState([]);
   const [productData, setProductData] = useState({
     name: "",
     description: "",
@@ -20,12 +19,12 @@ const Admin = () => {
   const [imageFiles, setImageFiles] = useState([]);
 
   useEffect(() => {
-    if (!userId || role !== "admin") {
+    if (!user || role !== "admin") {
       navigate("/");
     } else {
       fetchCategories();
     }
-  }, [userId, role, navigate]);
+  }, [user, role, navigate]);
 
   const fetchCategories = async () => {
     try {
@@ -243,4 +242,4 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+export default AdminDashboard;
