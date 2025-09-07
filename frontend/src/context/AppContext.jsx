@@ -3,11 +3,11 @@ import axios from "axios";
 
 const AppContext = createContext();
 
-// Initial state (only auth-related stuff)
+// Initial state
 const initialState = {
-  userId: null,
+  userId: null, // store the whole user object
   isAuthenticated: false,
-  role: null, // user or admin
+  role: null, // "user" or "admin"
 };
 
 // Reducer for authentication
@@ -42,13 +42,21 @@ export const AppProvider = ({ children }) => {
   // Fetch user profile if token exists
   const getUserProfile = async () => {
     try {
-      const response = await axios.get("/users/profile", {
+      const response = await axios.get("/users", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       const data = response.data;
-      setAuth(true, data.userId, data.role);
+
+      // Make sure the backend returns userId + role
+      const user = {
+        id: data.userId,
+        email: data.email, // optional
+        name: data.name, // optional
+      };
+
+      setAuth(true, user, data.role);
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
       signOut();
@@ -76,4 +84,3 @@ export const AppProvider = ({ children }) => {
 };
 
 export const useAppContext = () => useContext(AppContext);
-export default AppContext;

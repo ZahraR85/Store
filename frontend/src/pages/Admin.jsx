@@ -1,14 +1,14 @@
-import { useContext, useState, useEffect } from "react";
-import { AppContext } from "../context/AppContext";
+import { useState, useEffect } from "react";
+import { useAppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
 
 const Admin = () => {
-  const { user, role } = useContext(AppContext);
+  const { userId, role } = useAppContext();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [categoryName, setCategoryName] = useState("");
   const [subcategories, setSubcategories] = useState("");
-  const [products, setProducts] = useState([]);
+  //const [products, setProducts] = useState([]);
   const [productData, setProductData] = useState({
     name: "",
     description: "",
@@ -19,12 +19,12 @@ const Admin = () => {
   });
 
   useEffect(() => {
-    if (!user || role !== "admin") {
+    if (!userId || role !== "admin") {
       navigate("/"); // Redirect to home if not an admin
     } else {
       fetchCategories();
     }
-  }, [user, role, navigate]);
+  }, [userId, role, navigate]);
 
   const fetchCategories = async () => {
     try {
