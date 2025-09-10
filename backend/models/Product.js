@@ -1,18 +1,23 @@
 import mongoose from "mongoose";
 
-const ProductSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    description: { type: String, trim: true },
-    price: { type: Number, required: true, min: 0 },
-      sizes: [String],
-  colors: [String],
-    images:[{ type: String }], // Image URL
-    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
-    subcategory: { type: String, trim: true }, // Example: "Jeans"
-    stock: { type: Number, default: 0, min: 0 },
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+    gender: {
+    type: String,
+    enum: ["men", "women", "kids", "unisex"],
+    required: true,
+    default: "unisex",
   },
-  { timestamps: true } // Adds createdAt and updatedAt fields automatically
-);
+  description: String,
+  price: { type: Number, required: true, min: 0},
+  images: [String],
+  category: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
+  subcategory: { type: String }, // stored as string from category.subcategories
+  brand: String,
+  sizes: [String],   // ["S", "M", "L", "XL"]
+  colors: [String],  // ["Black", "Blue", "Red"]
+  stock: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
+});
 
-export default mongoose.model("Product", ProductSchema);
+export default mongoose.model("Product", productSchema);

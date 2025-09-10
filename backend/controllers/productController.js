@@ -12,11 +12,12 @@ export const createProduct = async (req, res) => {
       name,
       description,
       price,
-      sizes,
-      colors,
       images,
       category,
       subcategory,
+      brand,
+      sizes,
+      colors,
       stock,
     });
 
@@ -62,10 +63,11 @@ export const updateProduct = async (req, res) => {
       name,
       description,
       price,
-      sizes,
-      colors,
       category,
       subcategory,
+      brand,
+      sizes,
+      colors,
       stock,
     };
 

@@ -16,6 +16,9 @@ const Admin = () => {
     images: [],
     category: "",
     subcategory: "",
+    brand: "",
+    sizes: [],
+    colors: [],
   });
   const [imageFiles, setImageFiles] = useState([]);
 
@@ -171,6 +174,49 @@ const Admin = () => {
               value={productData.price}
               onChange={handleInputChange}
               placeholder="Price"
+              className="border p-2 rounded w-full mb-2"
+            />
+            // inside Add Product form
+            <input
+              type="text"
+              name="brand"
+              value={productData.brand}
+              onChange={handleInputChange}
+              placeholder="Brand"
+              className="border p-2 rounded w-full mb-2"
+            />
+            <input
+              type="text"
+              name="sizes"
+              value={productData.sizes}
+              onChange={(e) =>
+                setProductData({
+                  ...productData,
+                  sizes: e.target.value.split(","),
+                })
+              }
+              placeholder="Sizes (comma separated, e.g. S,M,L,XL)"
+              className="border p-2 rounded w-full mb-2"
+            />
+            <input
+              type="text"
+              name="colors"
+              value={productData.colors}
+              onChange={(e) =>
+                setProductData({
+                  ...productData,
+                  colors: e.target.value.split(","),
+                })
+              }
+              placeholder="Colors (comma separated, e.g. Black,Blue,Red)"
+              className="border p-2 rounded w-full mb-2"
+            />
+            <input
+              type="number"
+              name="stock"
+              value={productData.stock}
+              onChange={handleInputChange}
+              placeholder="Stock Quantity"
               className="border p-2 rounded w-full mb-2"
             />
             <input
