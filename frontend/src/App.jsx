@@ -4,7 +4,7 @@ import Layout from "./pages/Layout";
 import SignIn from "./Auth/SignIn.jsx";
 import Register from "./Auth/Register.jsx";
 import Homepage from "./pages/HomePage.jsx";
-import AdminRoute from "./pages/AdminRoute.jsx";
+//import AdminRoute from "./pages/AdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 
@@ -16,8 +16,10 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/products/:gender" element={<ProductPage />} />
+        <Route path="/products/:gender/:categoryId" element={<ProductPage />} />
         <Route
-          path="/products/:gender/:subcategory"
+          path="/products/:gender/:categoryId/:subcategory"
           element={<ProductPage />}
         />
 

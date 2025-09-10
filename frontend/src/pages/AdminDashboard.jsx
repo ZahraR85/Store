@@ -2,38 +2,40 @@ import { useState, useEffect } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { useNavigate } from "react-router-dom";
 
-const Admin = () => {
+const AdminDashboard = () => {
   const { userId, role } = useAppContext();
   const navigate = useNavigate();
+
+  const [genders] = useState(["women", "men", "kids", "home"]); // Gender options
   const [categories, setCategories] = useState([]);
+  const [categoryGender, setCategoryGender] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [subcategories, setSubcategories] = useState("");
-  //  const [products, setProducts] = useState([]);
+
   const [productData, setProductData] = useState({
+    gender: "",
+    category: "",
+    subcategory: "",
     name: "",
     description: "",
     price: "",
-    images: [],
-    category: "",
-    subcategory: "",
     brand: "",
     sizes: [],
     colors: [],
+    stock: "",
+    images: [],
   });
   const [imageFiles, setImageFiles] = useState([]);
 
   useEffect(() => {
-    if (!userId || role !== "admin") {
-      navigate("/");
-    } else {
-      fetchCategories();
-    }
+    if (!userId || role !== "admin") navigate("/");
+    else fetchCategories();
   }, [userId, role, navigate]);
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("http://localhost:3001/categories");
-      const data = await response.json();
+      const res = await fetch("http://localhost:3001/categories");
+      const data = await res.json();
       setCategories(data);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -41,25 +43,29 @@ const Admin = () => {
   };
 
   const handleAddCategory = async () => {
+    if (!categoryGender || !categoryName)
+      return alert("Gender & Category required");
     try {
-      const response = await fetch("http://localhost:3001/categories", {
+      const res = await fetch("http://localhost:3001/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          gender: categoryGender,
           name: categoryName,
           subcategories: subcategories.split(",").map((s) => s.trim()),
         }),
       });
-
-      if (response.ok) {
-        fetchCategories();
+      if (res.ok) {
+        setCategoryGender("");
         setCategoryName("");
         setSubcategories("");
+        fetchCategories();
       }
     } catch (error) {
       console.error("Error adding category:", error);
     }
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProductData((prev) => ({ ...prev, [name]: value }));
@@ -72,45 +78,55 @@ const Admin = () => {
 
   const uploadImagesToCloudinary = async () => {
     const uploadedImages = [];
-
     for (let file of imageFiles) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "ml_default");
-
       try {
-        const response = await fetch(
+        const res = await fetch(
           "https://api.cloudinary.com/v1_1/ddx3jbnt2/image/upload",
-          { method: "POST", body: formData }
+          {
+            method: "POST",
+            body: formData,
+          }
         );
-        const data = await response.json();
+        const data = await res.json();
         uploadedImages.push(data.secure_url);
       } catch (error) {
         console.error("Error uploading image:", error);
       }
     }
-
     return uploadedImages;
   };
 
   const handleAddProduct = async () => {
+    if (
+      !productData.gender ||
+      !productData.category ||
+      !productData.subcategory
+    ) {
+      return alert("Gender, Category & Subcategory are required");
+    }
     const uploadedImages = await uploadImagesToCloudinary();
-
     try {
-      const response = await fetch("http://localhost:3001/products", {
+      const res = await fetch("http://localhost:3001/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...productData, images: uploadedImages }),
       });
-
-      if (response.ok) {
+      if (res.ok) {
         setProductData({
+          gender: "",
+          category: "",
+          subcategory: "",
           name: "",
           description: "",
           price: "",
+          brand: "",
+          sizes: [],
+          colors: [],
+          stock: "",
           images: [],
-          category: "",
-          subcategory: "",
         });
         setImageFiles([]);
       }
@@ -120,173 +136,191 @@ const Admin = () => {
   };
 
   return (
-    <div className="relative min-h-screen p-10 bg-gray-100 ">
-      <div className="relative mx-auto w-full max-w-[100%] bg-white shadow-md rounded-lg p-2 lg:p-8 space-y-5">
+    <div className="min-h-screen p-6 bg-gray-100">
+      <div className="max-w-[1200px] mx-auto bg-white shadow-md rounded-lg p-6 space-y-6">
         <h1 className="text-2xl font-bold">Admin Panel</h1>
-        <p>Welcome, Admin! Manage your products and categories here.</p>
-        <div className="flex">
-          {/* Add Category */}
-          <div className="flex-2 border-4 border-rounded p-4">
-            <h2 className="text-xl font-semibold">Add Category</h2>
-            <input
-              type="text"
-              placeholder="Category Name"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-              className="border p-2 rounded w-full"
-            />
-            <input
-              type="text"
-              placeholder="Subcategories (comma separated)"
-              value={subcategories}
-              onChange={(e) => setSubcategories(e.target.value)}
-              className="border p-2 rounded w-full mt-2"
-            />
-            <button
-              onClick={handleAddCategory}
-              className="bg-blue-500 text-white px-4 py-2 mt-2 rounded"
-            >
-              Add Category
-            </button>
-          </div>
 
-          {/* Add Product */}
-          <div className="flex-3 ml-4 border-4 p-4 border-rounded">
-            <h2 className="text-xl font-bold mb-4">Add Product</h2>
-            <input
-              type="text"
-              name="name"
-              value={productData.name}
-              onChange={handleInputChange}
-              placeholder="Product Name"
-              className="border p-2 rounded w-full mb-2"
-            />
-            <textarea
-              name="description"
-              value={productData.description}
-              onChange={handleInputChange}
-              placeholder="Description"
-              className="border p-2 rounded w-full mb-2"
-            ></textarea>
-            <input
-              type="number"
-              name="price"
-              value={productData.price}
-              onChange={handleInputChange}
-              placeholder="Price"
-              className="border p-2 rounded w-full mb-2"
-            />
-            // inside Add Product form
-            <input
-              type="text"
-              name="brand"
-              value={productData.brand}
-              onChange={handleInputChange}
-              placeholder="Brand"
-              className="border p-2 rounded w-full mb-2"
-            />
-            <input
-              type="text"
-              name="sizes"
-              value={productData.sizes}
-              onChange={(e) =>
-                setProductData({
-                  ...productData,
-                  sizes: e.target.value.split(","),
-                })
-              }
-              placeholder="Sizes (comma separated, e.g. S,M,L,XL)"
-              className="border p-2 rounded w-full mb-2"
-            />
-            <input
-              type="text"
-              name="colors"
-              value={productData.colors}
-              onChange={(e) =>
-                setProductData({
-                  ...productData,
-                  colors: e.target.value.split(","),
-                })
-              }
-              placeholder="Colors (comma separated, e.g. Black,Blue,Red)"
-              className="border p-2 rounded w-full mb-2"
-            />
-            <input
-              type="number"
-              name="stock"
-              value={productData.stock}
-              onChange={handleInputChange}
-              placeholder="Stock Quantity"
-              className="border p-2 rounded w-full mb-2"
-            />
-            <input
-              type="file"
-              multiple
-              onChange={handleImageChange}
-              className="border p-2 rounded w-full mb-2"
-            />
-            <div className="flex flex-wrap gap-2">
-              {imageFiles.map((file, index) => (
-                <div key={index} className="relative">
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt="Preview"
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setImageFiles(imageFiles.filter((_, i) => i !== index))
-                    }
-                    className="absolute top-0 right-0 text-white bg-red-600 rounded-full w-6 h-6 flex items-center justify-center"
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
-            </div>
-            <select
-              value={productData.category}
-              onChange={(e) =>
-                setProductData({ ...productData, category: e.target.value })
-              }
-              className="border p-2 rounded w-full mt-2"
-            >
-              <option value="">Select Category</option>
-              {categories.map((cat) => (
+        {/* Add Category */}
+        <div className="border p-4 rounded space-y-2">
+          <h2 className="text-xl font-semibold">Add Category</h2>
+          <select
+            value={categoryGender}
+            onChange={(e) => setCategoryGender(e.target.value)}
+            className="border p-2 rounded w-full"
+          >
+            <option value="">Select Gender</option>
+            {genders.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            placeholder="Category Name"
+            value={categoryName}
+            onChange={(e) => setCategoryName(e.target.value)}
+            className="border p-2 rounded w-full"
+          />
+          <input
+            type="text"
+            placeholder="Subcategories (comma separated)"
+            value={subcategories}
+            onChange={(e) => setSubcategories(e.target.value)}
+            className="border p-2 rounded w-full"
+          />
+          <button
+            onClick={handleAddCategory}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Add Category
+          </button>
+        </div>
+
+        {/* Add Product */}
+        <div className="border p-4 rounded space-y-2">
+          <h2 className="text-xl font-semibold">Add Product</h2>
+
+          <select
+            name="gender"
+            value={productData.gender}
+            onChange={handleInputChange}
+            className="border p-2 rounded w-full"
+          >
+            <option value="">Select Gender</option>
+            {genders.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+
+          <select
+            name="category"
+            value={productData.category}
+            onChange={handleInputChange}
+            className="border p-2 rounded w-full"
+          >
+            <option value="">Select Category</option>
+            {categories
+              .filter((c) => c.gender === productData.gender)
+              .map((cat) => (
                 <option key={cat._id} value={cat._id}>
                   {cat.name}
                 </option>
               ))}
-            </select>
-            <select
-              value={productData.subcategory}
-              onChange={(e) =>
-                setProductData({ ...productData, subcategory: e.target.value })
-              }
-              className="border p-2 rounded w-full mt-2"
-              disabled={!productData.category} // Disable if no category selected
-            >
-              <option value="">Select Subcategory</option>
-              {categories
-                .find((cat) => cat._id === productData.category)
-                ?.subcategories.map((sub, index) => (
-                  <option key={index} value={sub}>
-                    {sub}
-                  </option>
-                ))}
-            </select>
-            <button
-              onClick={handleAddProduct}
-              className="bg-blue-500 text-white p-2 rounded w-full mt-2"
-            >
-              Add Product
-            </button>
+          </select>
+
+          <select
+            name="subcategory"
+            value={productData.subcategory}
+            onChange={handleInputChange}
+            className="border p-2 rounded w-full"
+            disabled={!productData.category}
+          >
+            <option value="">Select Subcategory</option>
+            {categories
+              .find((c) => c._id === productData.category)
+              ?.subcategories.map((sub, i) => (
+                <option key={i} value={sub}>
+                  {sub}
+                </option>
+              ))}
+          </select>
+
+          <input
+            type="text"
+            name="name"
+            placeholder="Product Name"
+            value={productData.name}
+            onChange={handleInputChange}
+            className="border p-2 rounded w-full"
+          />
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={productData.description}
+            onChange={handleInputChange}
+            className="border p-2 rounded w-full"
+          />
+          <input
+            type="number"
+            name="price"
+            placeholder="Price"
+            value={productData.price}
+            onChange={handleInputChange}
+            className="border p-2 rounded w-full"
+          />
+          <input
+            type="text"
+            name="brand"
+            placeholder="Brand"
+            value={productData.brand}
+            onChange={handleInputChange}
+            className="border p-2 rounded w-full"
+          />
+          <input
+            type="text"
+            name="sizes"
+            placeholder="Sizes (comma separated)"
+            value={productData.sizes}
+            onChange={(e) =>
+              setProductData({
+                ...productData,
+                sizes: e.target.value.split(","),
+              })
+            }
+            className="border p-2 rounded w-full"
+          />
+          <input
+            type="text"
+            name="colors"
+            placeholder="Colors (comma separated)"
+            value={productData.colors}
+            onChange={(e) =>
+              setProductData({
+                ...productData,
+                colors: e.target.value.split(","),
+              })
+            }
+            className="border p-2 rounded w-full"
+          />
+          <input
+            type="number"
+            name="stock"
+            placeholder="Stock Quantity"
+            value={productData.stock}
+            onChange={handleInputChange}
+            className="border p-2 rounded w-full"
+          />
+
+          <input
+            type="file"
+            multiple
+            onChange={handleImageChange}
+            className="border p-2 rounded w-full"
+          />
+          <div className="flex gap-2 flex-wrap">
+            {imageFiles.map((file, i) => (
+              <img
+                key={i}
+                src={URL.createObjectURL(file)}
+                alt="preview"
+                className="w-16 h-16 object-cover rounded"
+              />
+            ))}
           </div>
+
+          <button
+            onClick={handleAddProduct}
+            className="bg-green-500 text-white px-4 py-2 rounded w-full"
+          >
+            Add Product
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-export default Admin;
+export default AdminDashboard;

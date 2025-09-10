@@ -2,27 +2,25 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const ProductPage = () => {
-  const { gender, subcategory } = useParams();
+  const { gender, categoryId, subcategory } = useParams();
   const [products, setProducts] = useState([]);
-  const [filter, setFilter] = useState({
-    category: "",
-    subcategory: "",
-    price: "",
-  });
 
   useEffect(() => {
     fetchProducts();
-  }, [filter]);
+  }, [gender, categoryId, subcategory]);
 
   const fetchProducts = async () => {
     try {
       let url = "http://localhost:3001/products";
-      if (filter.category) {
-        url = `http://localhost:3001/products/category/${filter.category}`;
-        if (filter.subcategory) {
-          url += `/${filter.subcategory}`;
-        }
+
+      if (gender && categoryId && subcategory) {
+        url = `http://localhost:3001/products/gender/${gender}/category/${categoryId}/subcategory/${subcategory}`;
+      } else if (gender && categoryId) {
+        url = `http://localhost:3001/products/gender/${gender}/category/${categoryId}`;
+      } else if (gender) {
+        url = `http://localhost:3001/products/gender/${gender}`;
       }
+
       const res = await fetch(url);
       const data = await res.json();
       setProducts(data);
@@ -34,39 +32,10 @@ const ProductPage = () => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Products</h1>
-      <h1 className="text-2xl font-bold mb-4">
-        {gender} - {subcategory}
-      </h1>
-      {/* Filters */}
-      <div className="flex gap-4 mb-6">
-        <select
-          onChange={(e) => setFilter({ ...filter, category: e.target.value })}
-          className="border p-2 rounded"
-        >
-          <option value="">All Categories</option>
-          {/* map categories here */}
-        </select>
-        <select
-          onChange={(e) =>
-            setFilter({ ...filter, subcategory: e.target.value })
-          }
-          className="border p-2 rounded"
-          disabled={!filter.category}
-        >
-          <option value="">All Subcategories</option>
-          {/* map subcategories here */}
-        </select>
-        <select
-          onChange={(e) => setFilter({ ...filter, price: e.target.value })}
-          className="border p-2 rounded"
-        >
-          <option value="">Sort by Price</option>
-          <option value="low">Low → High</option>
-          <option value="high">High → Low</option>
-        </select>
-      </div>
+      <h2 className="text-2xl mb-4">
+        {gender} {subcategory ? `- ${subcategory}` : ""}
+      </h2>
 
-      {/* Product Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {products.map((p) => (
           <div key={p._id} className="border rounded-lg p-4 shadow">

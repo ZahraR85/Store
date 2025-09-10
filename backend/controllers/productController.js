@@ -3,13 +3,25 @@ import Product from "../models/Product.js";
 // Create a product
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, sizes, colors, category, subcategory, stock } = req.body;
+    const {
+      name,
+      gender,
+      description,
+      price,
+      sizes,
+      colors,
+      category,
+      subcategory,
+      brand,
+      stock,
+    } = req.body;
 
     // Map uploaded files to URLs (already handled by cloudUploader middleware)
-    const images = req.files?.map(file => file.path) || [];
+    const images = req.files?.map((file) => file.path) || [];
 
     const product = new Product({
       name,
+      gender,
       description,
       price,
       images,
@@ -55,12 +67,24 @@ export const getProductById = async (req, res) => {
 // Update product
 export const updateProduct = async (req, res) => {
   try {
-    const { name, description, price, sizes, colors, category, subcategory, stock } = req.body;
+    const {
+      name,
+      gender,
+      description,
+      price,
+      sizes,
+      colors,
+      category,
+      subcategory,
+      brand,
+      stock,
+    } = req.body;
 
-    const images = req.files?.map(file => file.path); // Replace images if new files uploaded
+    const images = req.files?.map((file) => file.path); // Replace images if new files uploaded
 
     const updateData = {
       name,
+      gender,
       description,
       price,
       category,
@@ -73,7 +97,10 @@ export const updateProduct = async (req, res) => {
 
     if (images && images.length > 0) updateData.images = images;
 
-    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
+
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     res.json(product);
@@ -92,5 +119,44 @@ export const deleteProduct = async (req, res) => {
   } catch (error) {
     console.error("Delete Product Error:", error);
     res.status(500).json({ error: "Failed to delete product" });
+  }
+};
+// Get products by gender
+export const getProductsByGender = async (req, res) => {
+  try {
+    const products = await Product.find({ gender: req.params.gender }).populate("category");
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch products by gender" });
+  }
+};
+
+// Get products by gender + category
+export const getProductsByGenderAndCategory = async (req, res) => {
+  try {
+    const products = await Product.find({
+      gender: req.params.gender,
+      category: req.params.categoryId,
+    }).populate("category");
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch products by gender and category" });
+  }
+};
+
+// Get products by gender + category + subcategory
+export const getProductsByGenderCategorySubcategory = async (req, res) => {
+  try {
+    const products = await Product.find({
+      gender: req.params.gender,
+      category: req.params.categoryId,
+      subcategory: req.params.subcategory,
+    }).populate("category");
+    res.json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch products by gender, category, and subcategory" });
   }
 };

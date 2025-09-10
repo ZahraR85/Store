@@ -1,46 +1,49 @@
 import express from "express";
 import {
-    createProduct,
-    getAllProducts,
-    getProductById,
-    updateProduct,
-    deleteProduct,
+  createProduct,
+  getAllProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+  getProductsByGender,
+  getProductsByGenderAndCategory,
+  getProductsByGenderCategorySubcategory,
 } from "../controllers/productController.js";
 import fileUploader from "../middleware/fileUploader.js";
 import cloudUploader from "../middleware/cloudinaryMultiple.js";
 
 const router = express.Router();
 
-// Create a product (uploads images)
+// Create product with images
 router.post(
-  "/", fileUploader.array("images", 15), // Handle multiple files
-    (req, res, next) => {
-      console.log("Middleware Debug - Received files:", req.files); // Check files
-        if (!req.files) {
-            return res.status(400).json({ error: "No files uploaded" });
-        }
-        next();
-    },
-    cloudUploader, // Upload images to Cloudinary
-    createProduct
+  "/",
+  fileUploader.array("images", 15),
+  cloudUploader,
+  createProduct
 );
-
 
 // Get all products
 router.get("/", getAllProducts);
 
-// Get a product by ID
+// Get product by ID
 router.get("/:id", getProductById);
 
-// Update a product (with new images)
-router.put(
-    "/:id",
-    fileUploader.array("images", 15), 
-    cloudUploader,
-    updateProduct
+// Get by gender
+router.get("/gender/:gender", getProductsByGender);
+
+// Get by gender + category
+router.get("/gender/:gender/category/:categoryId", getProductsByGenderAndCategory);
+
+// Get by gender + category + subcategory
+router.get(
+  "/gender/:gender/category/:categoryId/subcategory/:subcategory",
+  getProductsByGenderCategorySubcategory
 );
 
-// Delete a product
+// Update product
+router.put("/:id", fileUploader.array("images", 15), cloudUploader, updateProduct);
+
+// Delete product
 router.delete("/:id", deleteProduct);
 
 export default router;
