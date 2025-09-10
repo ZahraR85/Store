@@ -6,35 +6,45 @@ const AdminDashboard = () => {
   const { userId, role } = useAppContext();
   const navigate = useNavigate();
 
-  const [genders] = useState(["women", "men", "kids", "home"]); // Gender options
   const [categories, setCategories] = useState([]);
-  const [categoryGender, setCategoryGender] = useState("");
   const [categoryName, setCategoryName] = useState("");
-  const [subcategories, setSubcategories] = useState("");
+  const [genderForCategory, setGenderForCategory] = useState("women");
+  const [subcategoriesInput, setSubcategoriesInput] = useState("");
 
   const [productData, setProductData] = useState({
-    gender: "",
-    category: "",
-    subcategory: "",
     name: "",
     description: "",
     price: "",
+    images: [],
+    gender: "",
+    category: "",
+    subcategory: "",
     brand: "",
     sizes: [],
     colors: [],
     stock: "",
-    images: [],
   });
+
   const [imageFiles, setImageFiles] = useState([]);
 
   useEffect(() => {
-    if (!userId || role !== "admin") navigate("/");
-    else fetchCategories();
+    if (!userId || role !== "admin") {
+      navigate("/");
+    }
   }, [userId, role, navigate]);
 
-  const fetchCategories = async () => {
+  // Fetch categories when gender is selected
+  useEffect(() => {
+    if (productData.gender) {
+      fetchCategoriesByGender(productData.gender);
+    }
+  }, [productData.gender]);
+
+  const fetchCategoriesByGender = async (gender) => {
     try {
-      const res = await fetch("http://localhost:3001/categories");
+      const res = await fetch(
+        `http://localhost:3001/categories?gender=${gender}`
+      );
       const data = await res.json();
       setCategories(data);
     } catch (error) {
@@ -42,24 +52,25 @@ const AdminDashboard = () => {
     }
   };
 
+  // Add new category
   const handleAddCategory = async () => {
-    if (!categoryGender || !categoryName)
-      return alert("Gender & Category required");
     try {
       const res = await fetch("http://localhost:3001/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          gender: categoryGender,
           name: categoryName,
-          subcategories: subcategories.split(",").map((s) => s.trim()),
+          gender: genderForCategory,
+          subcategories: subcategoriesInput.split(",").map((s) => s.trim()),
         }),
       });
+
       if (res.ok) {
-        setCategoryGender("");
         setCategoryName("");
-        setSubcategories("");
-        fetchCategories();
+        setSubcategoriesInput("");
+        if (genderForCategory === productData.gender) {
+          fetchCategoriesByGender(genderForCategory);
+        }
       }
     } catch (error) {
       console.error("Error adding category:", error);
@@ -78,57 +89,81 @@ const AdminDashboard = () => {
 
   const uploadImagesToCloudinary = async () => {
     const uploadedImages = [];
+
     for (let file of imageFiles) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "ml_default");
+
       try {
-        const res = await fetch(
+        const response = await fetch(
           "https://api.cloudinary.com/v1_1/ddx3jbnt2/image/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
+          { method: "POST", body: formData }
         );
-        const data = await res.json();
+        const data = await response.json();
         uploadedImages.push(data.secure_url);
       } catch (error) {
         console.error("Error uploading image:", error);
       }
     }
+
     return uploadedImages;
   };
-
   const handleAddProduct = async () => {
     if (
       !productData.gender ||
       !productData.category ||
-      !productData.subcategory
+      !productData.name ||
+      !productData.price
     ) {
-      return alert("Gender, Category & Subcategory are required");
+      alert("Please fill all required fields: Gender, Category, Name, Price");
+      return;
     }
-    const uploadedImages = await uploadImagesToCloudinary();
+
+    const formData = new FormData();
+
+    // Append product info
+    formData.append("name", productData.name);
+    formData.append("description", productData.description);
+    formData.append("price", productData.price);
+    formData.append("category", productData.category);
+    formData.append("subcategory", productData.subcategory);
+    formData.append("brand", productData.brand);
+    formData.append("sizes", productData.sizes.join(","));
+    formData.append("colors", productData.colors.join(","));
+    formData.append("stock", productData.stock);
+    formData.append("gender", productData.gender);
+
+    // Append images
+    imageFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+
     try {
-      const res = await fetch("http://localhost:3001/products", {
+      const response = await fetch("http://localhost:3001/products", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...productData, images: uploadedImages }),
+        body: formData, // important: multipart/form-data
       });
-      if (res.ok) {
+
+      if (response.ok) {
+        alert("Product added successfully!");
         setProductData({
-          gender: "",
-          category: "",
-          subcategory: "",
           name: "",
           description: "",
           price: "",
+          images: [],
+          category: "",
+          subcategory: "",
           brand: "",
           sizes: [],
           colors: [],
           stock: "",
-          images: [],
+          gender: "",
         });
         setImageFiles([]);
+      } else {
+        const err = await response.json();
+        console.error("Failed to add product:", err);
       }
     } catch (error) {
       console.error("Error adding product:", error);
@@ -136,24 +171,23 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gray-100">
-      <div className="max-w-[1200px] mx-auto bg-white shadow-md rounded-lg p-6 space-y-6">
-        <h1 className="text-2xl font-bold">Admin Panel</h1>
+    <div className="min-h-screen p-10 bg-gray-100">
+      <div className="mx-auto max-w-[1200px] bg-white shadow-md rounded-lg p-6 space-y-6">
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
 
         {/* Add Category */}
-        <div className="border p-4 rounded space-y-2">
+        <div className="border p-4 rounded space-y-3">
           <h2 className="text-xl font-semibold">Add Category</h2>
           <select
-            value={categoryGender}
-            onChange={(e) => setCategoryGender(e.target.value)}
+            value={genderForCategory}
+            onChange={(e) => setGenderForCategory(e.target.value)}
             className="border p-2 rounded w-full"
           >
-            <option value="">Select Gender</option>
-            {genders.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
+            <option value="women">Women</option>
+            <option value="men">Men</option>
+            <option value="kids">Kids</option>
+            <option value="home">Home</option>
+            <option value="unisex">Unisex</option>
           </select>
           <input
             type="text"
@@ -165,8 +199,8 @@ const AdminDashboard = () => {
           <input
             type="text"
             placeholder="Subcategories (comma separated)"
-            value={subcategories}
-            onChange={(e) => setSubcategories(e.target.value)}
+            value={subcategoriesInput}
+            onChange={(e) => setSubcategoriesInput(e.target.value)}
             className="border p-2 rounded w-full"
           />
           <button
@@ -178,51 +212,61 @@ const AdminDashboard = () => {
         </div>
 
         {/* Add Product */}
-        <div className="border p-4 rounded space-y-2">
-          <h2 className="text-xl font-semibold">Add Product</h2>
-
+        <div className="border p-4 rounded space-y-3">
+          <h2 className="text-xl font-bold">Add Product</h2>
           <select
-            name="gender"
             value={productData.gender}
-            onChange={handleInputChange}
+            onChange={(e) =>
+              setProductData({
+                ...productData,
+                gender: e.target.value,
+                category: "",
+                subcategory: "",
+              })
+            }
             className="border p-2 rounded w-full"
           >
             <option value="">Select Gender</option>
-            {genders.map((g) => (
-              <option key={g} value={g}>
-                {g}
+            <option value="women">Women</option>
+            <option value="men">Men</option>
+            <option value="kids">Kids</option>
+            <option value="home">Home</option>
+            <option value="unisex">Unisex</option>
+          </select>
+
+          <select
+            value={productData.category}
+            onChange={(e) =>
+              setProductData({
+                ...productData,
+                category: e.target.value,
+                subcategory: "",
+              })
+            }
+            className="border p-2 rounded w-full"
+            disabled={!productData.gender}
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
               </option>
             ))}
           </select>
 
           <select
-            name="category"
-            value={productData.category}
-            onChange={handleInputChange}
-            className="border p-2 rounded w-full"
-          >
-            <option value="">Select Category</option>
-            {categories
-              .filter((c) => c.gender === productData.gender)
-              .map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
-                </option>
-              ))}
-          </select>
-
-          <select
-            name="subcategory"
             value={productData.subcategory}
-            onChange={handleInputChange}
+            onChange={(e) =>
+              setProductData({ ...productData, subcategory: e.target.value })
+            }
             className="border p-2 rounded w-full"
             disabled={!productData.category}
           >
             <option value="">Select Subcategory</option>
             {categories
-              .find((c) => c._id === productData.category)
-              ?.subcategories.map((sub, i) => (
-                <option key={i} value={sub}>
+              .find((cat) => cat._id === productData.category)
+              ?.subcategories.map((sub, idx) => (
+                <option key={idx} value={sub}>
                   {sub}
                 </option>
               ))}
@@ -231,38 +275,37 @@ const AdminDashboard = () => {
           <input
             type="text"
             name="name"
-            placeholder="Product Name"
             value={productData.name}
             onChange={handleInputChange}
+            placeholder="Product Name"
             className="border p-2 rounded w-full"
           />
           <textarea
             name="description"
-            placeholder="Description"
             value={productData.description}
             onChange={handleInputChange}
+            placeholder="Description"
             className="border p-2 rounded w-full"
-          />
+          ></textarea>
           <input
             type="number"
             name="price"
-            placeholder="Price"
             value={productData.price}
             onChange={handleInputChange}
+            placeholder="Price"
             className="border p-2 rounded w-full"
           />
           <input
             type="text"
             name="brand"
-            placeholder="Brand"
             value={productData.brand}
             onChange={handleInputChange}
+            placeholder="Brand"
             className="border p-2 rounded w-full"
           />
           <input
             type="text"
             name="sizes"
-            placeholder="Sizes (comma separated)"
             value={productData.sizes}
             onChange={(e) =>
               setProductData({
@@ -270,12 +313,12 @@ const AdminDashboard = () => {
                 sizes: e.target.value.split(","),
               })
             }
+            placeholder="Sizes (comma separated, e.g. S,M,L)"
             className="border p-2 rounded w-full"
           />
           <input
             type="text"
             name="colors"
-            placeholder="Colors (comma separated)"
             value={productData.colors}
             onChange={(e) =>
               setProductData({
@@ -283,37 +326,50 @@ const AdminDashboard = () => {
                 colors: e.target.value.split(","),
               })
             }
+            placeholder="Colors (comma separated, e.g. Black,Blue)"
             className="border p-2 rounded w-full"
           />
           <input
             type="number"
             name="stock"
-            placeholder="Stock Quantity"
             value={productData.stock}
             onChange={handleInputChange}
+            placeholder="Stock"
             className="border p-2 rounded w-full"
           />
-
           <input
             type="file"
             multiple
-            onChange={handleImageChange}
-            className="border p-2 rounded w-full"
+            accept=".jpg,.jpeg,.png"
+            onChange={(e) =>
+              setImageFiles([...imageFiles, ...Array.from(e.target.files)])
+            }
+            className="border p-2 rounded w-full mb-2"
           />
-          <div className="flex gap-2 flex-wrap">
-            {imageFiles.map((file, i) => (
-              <img
-                key={i}
-                src={URL.createObjectURL(file)}
-                alt="preview"
-                className="w-16 h-16 object-cover rounded"
-              />
+          <div className="flex flex-wrap gap-2">
+            {imageFiles.map((file, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt="Preview"
+                  className="w-16 h-16 object-cover rounded"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setImageFiles(imageFiles.filter((_, i) => i !== index))
+                  }
+                  className="absolute top-0 right-0 text-white bg-red-600 rounded-full w-6 h-6 flex items-center justify-center"
+                >
+                  &times;
+                </button>
+              </div>
             ))}
           </div>
 
           <button
             onClick={handleAddProduct}
-            className="bg-green-500 text-white px-4 py-2 rounded w-full"
+            className="bg-green-500 text-white px-4 py-2 rounded mt-2"
           >
             Add Product
           </button>

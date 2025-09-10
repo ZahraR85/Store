@@ -3,6 +3,7 @@ import Product from "../models/Product.js";
 // Create a product
 export const createProduct = async (req, res) => {
   try {
+    // Get form-data fields
     const {
       name,
       gender,
@@ -16,8 +17,13 @@ export const createProduct = async (req, res) => {
       stock,
     } = req.body;
 
-    // Map uploaded files to URLs (already handled by cloudUploader middleware)
-    const images = req.files?.map((file) => file.path) || [];
+    // Convert comma-separated strings to arrays
+    const sizesArray = sizes ? sizes.split(",").map((s) => s.trim()) : [];
+    const colorsArray = colors ? colors.split(",").map((c) => c.trim()) : [];
+
+    // Get uploaded images URLs from cloudUploader
+    //const images = req.files?.map((file) => file.path) || [];
+    const images = req.cloudinaryURLs || [];
 
     const product = new Product({
       name,
@@ -28,16 +34,16 @@ export const createProduct = async (req, res) => {
       category,
       subcategory,
       brand,
-      sizes,
-      colors,
-      stock,
+      sizes: sizesArray,
+      colors: colorsArray,
+      stock: stock || 0,
     });
 
     await product.save();
     res.status(201).json(product);
   } catch (error) {
     console.error("Create Product Error:", error);
-    res.status(500).json({ error: "Failed to create product" });
+    res.status(500).json({ error: "Failed to create product", details: error.message });
   }
 };
 
