@@ -13,6 +13,8 @@ import {
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [openGender, setOpenGender] = useState(null);
+  const [openCategory, setOpenCategory] = useState(null);
 
   const { isAuthenticated, role, signOut, shoppingCardCount } = useAppContext();
 
@@ -23,7 +25,7 @@ const Navbar = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  const genders = ["women", "men", "kids", "home", "unisex"];
+  const genders = ["women", "men", "kids", "home"];
 
   return (
     <nav className="border-b bg-BgKhaki shadow-md sticky top-0 z-50">
@@ -64,17 +66,23 @@ const Navbar = () => {
         {/* Right nav */}
         <ul className="flex items-center space-x-6 font-bold text-BgFont">
           <li>
+            <Link to="/favorites" className="hover:underline">
+              ❤️
+            </Link>
+          </li>
+          <li>
             <Link
               to="/ShoppingCard"
               className="flex items-center space-x-1 hover:underline"
             >
               <FaShoppingCart className="text-xl" />
-              <span className="text-sm md:text-base">Shopping Card</span>
+              {/* <span className="text-sm md:text-base">Shopping Card</span> */}
               {isAuthenticated && shoppingCardCount > 0 && (
                 <span className="ml-2 text-red-600">{shoppingCardCount}</span>
               )}
             </Link>
           </li>
+
           <li>
             {isAuthenticated ? (
               <button onClick={signOut} className="hover:underline">
@@ -99,45 +107,62 @@ const Navbar = () => {
           const genderCategories = categories.filter(
             (c) => c.gender === gender
           );
+
           return (
-            <div key={gender} className="relative group">
-              <Link
-                to={`/products/${gender}`}
+            <div key={gender} className="relative">
+              {/* Gender button */}
+              <button
+                onClick={() =>
+                  setOpenGender(openGender === gender ? null : gender)
+                }
                 className="hover:text-black capitalize"
               >
-                {gender}
-              </Link>
-              {/* Dropdown */}
-              <div className="absolute top-full left-0 hidden group-hover:block bg-white shadow-lg p-4 rounded-lg min-w-[250px]">
-                <ul className="space-y-2">
-                  {genderCategories.map((cat) => (
-                    <li key={cat._id} className="group relative">
-                      <Link
-                        to={`/products/${gender}/${cat._id}`}
-                        className="font-semibold hover:text-black"
-                      >
-                        {cat.name}
-                      </Link>
-                      {cat.subcategories.length > 0 && (
-                        <ul className="ml-4 mt-1 space-y-1">
-                          {cat.subcategories.map((sub, i) => (
-                            <li key={i}>
-                              <Link
-                                to={`/products/${gender}/${
-                                  cat._id
-                                }/${encodeURIComponent(sub.toLowerCase())}`}
-                                className="text-gray-600 hover:text-black"
-                              >
-                                {sub}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                <Link to={`/products/${gender}`}>{gender}</Link>
+              </button>
+
+              {/* Show categories only if gender is open */}
+              {openGender === gender && (
+                <div className="absolute top-full left-0 bg-white shadow-lg p-4 rounded-lg min-w-[250px]">
+                  <ul className="space-y-2">
+                    {genderCategories.map((cat) => (
+                      <li key={cat._id} className="relative">
+                        {/* Category button */}
+                        <button
+                          onClick={() =>
+                            setOpenCategory(
+                              openCategory === cat._id ? null : cat._id
+                            )
+                          }
+                          className="font-semibold hover:text-black w-full text-left"
+                        >
+                          <Link to={`/products/${gender}/${cat._id}`}>
+                            {cat.name}
+                          </Link>
+                        </button>
+
+                        {/* Subcategories */}
+                        {openCategory === cat._id &&
+                          cat.subcategories.length > 0 && (
+                            <ul className="ml-4 mt-1 space-y-1">
+                              {cat.subcategories.map((sub, i) => (
+                                <li key={i}>
+                                  <Link
+                                    to={`/products/${gender}/${
+                                      cat._id
+                                    }/${encodeURIComponent(sub.toLowerCase())}`}
+                                    className="text-gray-600 hover:text-black"
+                                  >
+                                    {sub}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           );
         })}
@@ -181,39 +206,50 @@ const Navbar = () => {
                 );
                 return (
                   <li key={gender}>
-                    <Link
-                      to={`/products/${gender}`}
-                      className="font-bold capitalize"
+                    <button
+                      onClick={() =>
+                        setOpenGender(openGender === gender ? null : gender)
+                      }
+                      className="font-bold capitalize w-full text-left"
                     >
                       {gender}
-                    </Link>
-                    <ul className="ml-4 space-y-1">
-                      {genderCategories.map((cat) => (
-                        <li key={cat._id}>
-                          <Link
-                            to={`/products/${gender}/${cat._id}`}
-                            className="font-semibold"
-                          >
-                            {cat.name}
-                          </Link>
-                          {cat.subcategories.length > 0 && (
-                            <ul className="ml-4 space-y-1">
-                              {cat.subcategories.map((sub, i) => (
-                                <li key={i}>
-                                  <Link
-                                    to={`/products/${gender}/${
-                                      cat._id
-                                    }/${encodeURIComponent(sub.toLowerCase())}`}
-                                  >
-                                    {sub}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
+                    </button>
+                    {openGender === gender && (
+                      <ul className="ml-4 space-y-1">
+                        {genderCategories.map((cat) => (
+                          <li key={cat._id}>
+                            <button
+                              onClick={() =>
+                                setOpenCategory(
+                                  openCategory === cat._id ? null : cat._id
+                                )
+                              }
+                              className="font-semibold w-full text-left"
+                            >
+                              {cat.name}
+                            </button>
+                            {openCategory === cat._id &&
+                              cat.subcategories.length > 0 && (
+                                <ul className="ml-4 space-y-1">
+                                  {cat.subcategories.map((sub, i) => (
+                                    <li key={i}>
+                                      <Link
+                                        to={`/products/${gender}/${
+                                          cat._id
+                                        }/${encodeURIComponent(
+                                          sub.toLowerCase()
+                                        )}`}
+                                      >
+                                        {sub}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 );
               })}

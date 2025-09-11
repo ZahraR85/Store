@@ -187,7 +187,6 @@ const AdminDashboard = () => {
             <option value="men">Men</option>
             <option value="kids">Kids</option>
             <option value="home">Home</option>
-            <option value="unisex">Unisex</option>
           </select>
           <input
             type="text"
@@ -231,7 +230,6 @@ const AdminDashboard = () => {
             <option value="men">Men</option>
             <option value="kids">Kids</option>
             <option value="home">Home</option>
-            <option value="unisex">Unisex</option>
           </select>
 
           <select

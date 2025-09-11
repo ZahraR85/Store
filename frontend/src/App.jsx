@@ -1,4 +1,3 @@
-import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import SignIn from "./Auth/SignIn.jsx";
@@ -7,7 +6,7 @@ import Homepage from "./pages/HomePage.jsx";
 //import AdminRoute from "./pages/AdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
-
+import FavoritesPage from "./pages/FavoritesPage.jsx";
 function App() {
   return (
     <Layout>
@@ -22,7 +21,7 @@ function App() {
           path="/products/:gender/:categoryId/:subcategory"
           element={<ProductPage />}
         />
-
+        <Route path="/favorites" element={<FavoritesPage />} />
         {/* Admin Routes (commented out for now) */}
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
