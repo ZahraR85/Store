@@ -12,7 +12,7 @@ export default {
       BgBlackLight : "#302A2A",
       BgGray: "#d9dad0",
       BgCreme: "#e8dfcf",
-      BgKhaki : "#d5c0b5",
+      BgKhaki : "#eeeee4",
       BgKhakiDark : "#888884",
       BgFont: "Black",
       BgFontLight: "White",

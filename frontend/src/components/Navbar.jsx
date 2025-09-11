@@ -66,17 +66,23 @@ const Navbar = () => {
         {/* Right nav */}
         <ul className="flex items-center space-x-6 font-bold text-BgFont">
           <li>
+            <Link to="/favorites" className="hover:underline">
+              ❤️
+            </Link>
+          </li>
+          <li>
             <Link
               to="/ShoppingCard"
               className="flex items-center space-x-1 hover:underline"
             >
               <FaShoppingCart className="text-xl" />
-              <span className="text-sm md:text-base">Shopping Card</span>
+              {/* <span className="text-sm md:text-base">Shopping Card</span> */}
               {isAuthenticated && shoppingCardCount > 0 && (
                 <span className="ml-2 text-red-600">{shoppingCardCount}</span>
               )}
             </Link>
           </li>
+
           <li>
             {isAuthenticated ? (
               <button onClick={signOut} className="hover:underline">
