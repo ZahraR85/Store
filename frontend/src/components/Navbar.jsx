@@ -222,7 +222,6 @@ const Navbar = () => {
                   Admin Panel
                 </Link>
               </div>
-              )}
             </ul>
 
             <hr className="my-4" />
