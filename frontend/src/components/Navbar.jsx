@@ -25,7 +25,7 @@ const Navbar = () => {
       .catch((err) => console.error(err));
   }, []);
 
-  const genders = ["women", "men", "kids", "home", "unisex"];
+  const genders = ["women", "men", "kids", "home"];
 
   return (
     <nav className="border-b bg-BgKhaki shadow-md sticky top-0 z-50">
