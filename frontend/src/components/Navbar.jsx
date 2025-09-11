@@ -23,11 +23,12 @@ const Navbar = () => {
       .catch((err) => console.error(err));
   }, []);
 
+  const genders = ["women", "men", "kids", "home", "unisex"];
+
   return (
     <nav className="border-b bg-BgKhaki shadow-md sticky top-0 z-50">
-      {/* Top Row */}
       <div className="flex items-center justify-between px-4 py-2 md:px-8">
-        {/* Mobile menu button */}
+        {/* Mobile menu */}
         <button
           className="text-BgFont lg:hidden"
           onClick={() => setMenuOpen(true)}
@@ -35,7 +36,7 @@ const Navbar = () => {
           <FaBars className="text-2xl" />
         </button>
 
-        {/* Left nav items */}
+        {/* Left nav */}
         <div>
           <ul className="flex items-center space-x-6 font-bold text-BgFont">
             <li>
@@ -60,7 +61,7 @@ const Navbar = () => {
           <img src={logo} alt="Logo" className="h-16" />
         </Link>
 
-        {/* Right nav items */}
+        {/* Right nav */}
         <ul className="flex items-center space-x-6 font-bold text-BgFont">
           <li>
             <Link
@@ -92,9 +93,9 @@ const Navbar = () => {
         </ul>
       </div>
 
-      {/* Categories + Admin Dropdown (Desktop) */}
-      <div className="hidden md:flex justify-center bg-gray-100 text-BgFont py-2 space-x-8 font-medium">
-        {["women", "men", "kids", "home", "unisex"].map((gender) => {
+      {/* Desktop dropdowns */}
+      <div className="hidden md:flex justify-center bg-gray-100 py-2 space-x-8 font-medium">
+        {genders.map((gender) => {
           const genderCategories = categories.filter(
             (c) => c.gender === gender
           );
@@ -106,7 +107,6 @@ const Navbar = () => {
               >
                 {gender}
               </Link>
-
               {/* Dropdown */}
               <div className="absolute top-full left-0 hidden group-hover:block bg-white shadow-lg p-4 rounded-lg min-w-[250px]">
                 <ul className="space-y-2">
@@ -125,7 +125,7 @@ const Navbar = () => {
                               <Link
                                 to={`/products/${gender}/${
                                   cat._id
-                                }/${sub.toLowerCase()}`}
+                                }/${encodeURIComponent(sub.toLowerCase())}`}
                                 className="text-gray-600 hover:text-black"
                               >
                                 {sub}
@@ -157,7 +157,7 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile drawer */}
       {menuOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div className="w-64 bg-BgKhaki shadow-lg p-4">
@@ -170,17 +170,12 @@ const Navbar = () => {
 
             <ul className="space-y-3">
               <li>
-                <Link to="/" className="hover:underline">
-                  Home
-                </Link>
+                <Link to="/">Home</Link>
               </li>
               <li>
-                <Link to="/Gallery" className="hover:underline">
-                  Gallery
-                </Link>
+                <Link to="/Gallery">Gallery</Link>
               </li>
-
-              {["women", "men", "kids", "home", "unisex"].map((gender) => {
+              {genders.map((gender) => {
                 const genderCategories = categories.filter(
                   (c) => c.gender === gender
                 );
@@ -208,7 +203,7 @@ const Navbar = () => {
                                   <Link
                                     to={`/products/${gender}/${
                                       cat._id
-                                    }/${sub.toLowerCase()}`}
+                                    }/${encodeURIComponent(sub.toLowerCase())}`}
                                   >
                                     {sub}
                                   </Link>
@@ -222,14 +217,11 @@ const Navbar = () => {
                   </li>
                 );
               })}
-
-              {/* Admin Panel */}
-              {isAuthenticated && role === "admin" && (
-                <div className="flex flex-col gap-2 mt-4">
-                  <Link to="/admin" className="text-BgFont hover:underline">
-                    Admin Panel
-                  </Link>
-                </div>
+              <div className="flex flex-col gap-2 mt-4">
+                <Link to="/admin" className="text-BgFont hover:underline">
+                  Admin Panel
+                </Link>
+              </div>
               )}
             </ul>
 

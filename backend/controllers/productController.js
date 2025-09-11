@@ -152,14 +152,18 @@ export const getProductsByGenderAndCategory = async (req, res) => {
   }
 };
 
-// Get products by gender + category + subcategory
+// Get products by gender + category + subcategory (case-insensitive)
 export const getProductsByGenderCategorySubcategory = async (req, res) => {
   try {
+    const { gender, categoryId, subcategory } = req.params;
+
+    // Use regex for case-insensitive matching
     const products = await Product.find({
-      gender: req.params.gender,
-      category: req.params.categoryId,
-      subcategory: req.params.subcategory,
+      gender,
+      category: categoryId,
+      subcategory: { $regex: `^${subcategory}$`, $options: "i" }
     }).populate("category");
+
     res.json(products);
   } catch (error) {
     console.error(error);
