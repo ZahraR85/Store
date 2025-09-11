@@ -12,16 +12,22 @@ import {
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:3001/categories")
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.error(err));
+  }, []);
+
   const {
-    userId,
     setHoveredDropdown,
     isAuthenticated,
     role,
     signOut,
     shoppingCardCount,
   } = useAppContext();
-
-  useEffect(() => {}, [isAuthenticated, role]);
 
   const handleMouseEnter = () => {
     setHoveredDropdown("adminPanel");
@@ -109,159 +115,51 @@ const Navbar = () => {
 
       {/* Second Row (Desktop Menus) */}
       <div className="hidden text-BgFont items-center justify-around bg-gray-100 px-4 py-2 text-sm md:flex">
-        <ul className="flex font-bold items-center justify-around space-x-12 text-sm">
-          {/* Men mega-menu */}
-          <li className="relative group">
-            <span className="hover:underline cursor-pointer">Men</span>
-            <div className="absolute left-0 top-full bg-white shadow-xl rounded-md mt-2 p-6 hidden group-hover:grid grid-cols-4 gap-8 w-[800px] z-50">
-              {/* Tops */}
-              <div>
-                <h3 className="font-bold mb-2">Tops</h3>
-                <ul className="space-y-1">
-                  <li>
-                    <Link
-                      to="/products/men/t-shirts"
-                      className="hover:underline"
-                    >
-                      T-Shirts
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products/men/polos" className="hover:underline">
-                      Polos
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products/men/shirts" className="hover:underline">
-                      Shirts
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/products/men/sweaters"
-                      className="hover:underline"
-                    >
-                      Sweaters
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/products/men/hoodies"
-                      className="hover:underline"
-                    >
-                      Hoodies
-                    </Link>
-                  </li>
-                </ul>
+        <ul className="hidden md:flex space-x-8 text-gray-700 font-medium relative">
+          {categories.map((cat) => (
+            <li key={cat._id} className="group relative">
+              <button className="hover:text-black transition-colors">
+                {cat.name}
+              </button>
+
+              {/* Dropdown */}
+              <div className="absolute left-0 hidden group-hover:block bg-white shadow-lg p-6 rounded-lg min-w-[250px]">
+                <div className="grid grid-cols-2 gap-4">
+                  {cat.subcategories &&
+                    Array.isArray(cat.subcategories) &&
+                    cat.subcategories.map((sub) => (
+                      <div key={sub.id}>
+                        <h3 className="font-semibold mb-2">{sub.name}</h3>
+                        <ul className="space-y-1">
+                          {sub.items &&
+                            sub.items.map((item, i) => (
+                              <li key={i}>
+                                <Link
+                                  to={`/products/${cat.gender}/${
+                                    cat._id
+                                  }/${item.toLowerCase()}`}
+                                  className="text-sm text-gray-600 hover:text-black"
+                                >
+                                  {item}
+                                </Link>
+                              </li>
+                            ))}
+                        </ul>
+                      </div>
+                    ))}
+                </div>
               </div>
-              {/* Bottoms */}
-              <div>
-                <h3 className="font-bold mb-2">Bottoms</h3>
-                <ul className="space-y-1">
-                  <li>
-                    <Link to="/products/men/jeans" className="hover:underline">
-                      Jeans
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products/men/chinos" className="hover:underline">
-                      Chinos
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products/men/shorts" className="hover:underline">
-                      Shorts
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/products/men/joggers"
-                      className="hover:underline"
-                    >
-                      Joggers
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              {/* Outerwear */}
-              <div>
-                <h3 className="font-bold mb-2">Outerwear</h3>
-                <ul className="space-y-1">
-                  <li>
-                    <Link
-                      to="/products/men/jackets"
-                      className="hover:underline"
-                    >
-                      Jackets
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products/men/coats" className="hover:underline">
-                      Coats
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/products/men/blazers"
-                      className="hover:underline"
-                    >
-                      Blazers
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products/men/parkas" className="hover:underline">
-                      Parkas
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              {/* Accessories */}
-              <div>
-                <h3 className="font-bold mb-2">Accessories</h3>
-                <ul className="space-y-1">
-                  <li>
-                    <Link to="/products/men/belts" className="hover:underline">
-                      Belts
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products/men/hats" className="hover:underline">
-                      Hats
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products/men/socks" className="hover:underline">
-                      Socks
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/products/men/bags" className="hover:underline">
-                      Bags & Wallets
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/products/men/jewelry"
-                      className="hover:underline"
-                    >
-                      Jewelry
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </li>
+            </li>
+          ))}
 
           {/* Admin Panel */}
           {isAuthenticated && role === "admin" && (
-            <li className="relative group">
-              <span
-                className="hover:underline"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                Admin Panel
-              </span>
+            <li
+              className="relative group"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <span className="hover:underline">Admin Panel</span>
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-[200px] max-w-[50vw] bg-gray-100 text-BgFont shadow-lg mt-2 p-4 opacity-0 group-hover:opacity-100 group-hover:visible transition-all duration-300">
                 <ul className="flex flex-col items-start space-y-4">
                   <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
@@ -306,7 +204,8 @@ const Navbar = () => {
               >
                 Book your Venue
               </Link>
-              {/* Men (mobile version) */}
+
+              {/* Men (mobile version sample) */}
               <div>
                 <h3 className="font-bold">Men</h3>
                 <ul className="ml-4 space-y-2">
@@ -324,6 +223,7 @@ const Navbar = () => {
                   </li>
                 </ul>
               </div>
+
               {/* Admin */}
               {isAuthenticated && role === "admin" && (
                 <div className="flex flex-col gap-4">
