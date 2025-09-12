@@ -39,6 +39,10 @@ const ProductPage = () => {
     }
   };
 
+  const isFavorite = (productId) => {
+    return favorites.some((f) => f._id === productId);
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Products</h1>
@@ -51,37 +55,32 @@ const ProductPage = () => {
         <p className="text-gray-500">No products found.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {products.map((p) => {
-            const isFav = favorites.some((f) => f._id === p._id);
-            return (
-              <div
-                key={p._id}
-                className="border rounded-lg p-4 shadow relative"
+          {products.map((p) => (
+            <div key={p._id} className="border rounded-lg p-4 shadow relative">
+              <button
+                onClick={() => toggleFavorite(p)}
+                className="absolute top-2 right-2 text-xl"
               >
-                {/* Heart icon */}
-                <button
-                  onClick={() => toggleFavorite(p)}
-                  className="absolute top-2 right-2 text-xl"
-                >
-                  <FaHeart
-                    className={isFav ? "text-red-500" : "text-gray-400"}
-                  />
-                </button>
-
-                <img
-                  src={p.images[0]}
-                  alt={p.name}
-                  className="h-48 w-full object-cover rounded"
+                <FaHeart
+                  className={
+                    isFavorite(p._id) ? "text-red-500" : "text-gray-400"
+                  }
                 />
-                <h2 className="text-lg font-semibold mt-2">{p.name}</h2>
-                <p className="text-gray-600">{p.brand}</p>
-                <p className="text-gray-900 font-bold">€{p.price}</p>
-                <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
-                  Add to Cart
-                </button>
-              </div>
-            );
-          })}
+              </button>
+
+              <img
+                src={p.images[0]}
+                alt={p.name}
+                className="h-48 w-full object-cover rounded"
+              />
+              <h2 className="text-lg font-semibold mt-2">{p.name}</h2>
+              <p className="text-gray-600">{p.brand}</p>
+              <p className="text-gray-900 font-bold">€{p.price}</p>
+              <button className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+                Add to Cart
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </div>
