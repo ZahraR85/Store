@@ -5,7 +5,6 @@ const FavoritesContext = createContext();
 export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
 
-  // برای ذخیره در localStorage
   useEffect(() => {
     const stored = localStorage.getItem("favorites");
     if (stored) {
@@ -17,15 +16,33 @@ export const FavoritesProvider = ({ children }) => {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  const toggleFavorite = (product) => {
-    setFavorites((prev) => {
-      const exists = prev.some((p) => p._id === product._id);
-      if (exists) {
-        return prev.filter((p) => p._id !== product._id);
-      } else {
-        return [...prev, product];
-      }
-    });
+  const fetchFavorites = async () => {
+    try {
+      const res = await fetch("/favorites", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await res.json();
+      setFavorites(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Toggle favorite (add/remove)
+  const toggleFavorite = async (productId) => {
+    try {
+      await fetch("http://localhost:3001/favorites/toggle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ productId }),
+      });
+      fetchFavorites(); // update list after toggle
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -35,6 +52,4 @@ export const FavoritesProvider = ({ children }) => {
   );
 };
 
-export const useFavorites = () => {
-  return useContext(FavoritesContext);
-};
+export const useFavorites = () => useContext(FavoritesContext);

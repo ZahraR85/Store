@@ -12,7 +12,7 @@ import authRoutes from "./routes/authRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import usersRouter from "./routes/users.js";
-
+import favoriteRoutes from "./routes/favoriteRoutes.js";
 dotenv.config();
 
 // Connect to MongoDB
@@ -47,6 +47,7 @@ app.use("/users", usersRouter);
 app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/favorites", favoriteRoutes);
 
 // Default route
 app.get("/", (req, res) => {
