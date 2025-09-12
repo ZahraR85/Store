@@ -1,27 +1,26 @@
-import { createContext, useContext, useState, useEffect } from "react";
-
+// src/context/FavoritesContext.jsx
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { useAppContext } from "./AppContext";
 const FavoritesContext = createContext();
 
 export const FavoritesProvider = ({ children }) => {
+  const { isAuthenticated } = useAppContext();
   const [favorites, setFavorites] = useState([]);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem("favorites");
-    if (stored) {
-      setFavorites(JSON.parse(stored));
-    }
-  }, []);
+  const normalizeServerData = (data) => {
+    if (!Array.isArray(data)) return [];
+    return data.map((item) => (item.product ? item.product : item));
+  };
 
-  // Save to localStorage whenever favorites change
-  useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
-
-  // Fetch favorites from backend (only if user is logged in)
-  const fetchFavorites = async () => {
+  const fetchFavorites = useCallback(async () => {
     const token = localStorage.getItem("token");
-    if (!token) return; // stop if user not logged in
+    if (!token) return;
 
     try {
       const res = await fetch("http://localhost:3001/favorites", {
@@ -30,42 +29,77 @@ export const FavoritesProvider = ({ children }) => {
 
       if (!res.ok) {
         console.error("Failed to fetch favorites:", res.status);
+        // اگر توکن نامعتبره یا 401 شد، پیشنهادم اینه که در AppContext signOut کنین.
         return;
       }
 
       const data = await res.json();
-      setFavorites(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+      const normalized = normalizeServerData(data);
+      setFavorites(normalized);
 
-  // Toggle favorite product
-  const toggleFavorite = async (product) => {
+      localStorage.removeItem("favorites");
+    } catch (err) {
+      console.error("fetchFavorites error:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (isAuthenticated && token) {
+      fetchFavorites();
+    } else {
+      const stored = localStorage.getItem("favorites");
+      if (stored) {
+        try {
+          setFavorites(JSON.parse(stored));
+        } catch {
+          setFavorites([]);
+        }
+      } else {
+        setFavorites([]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, fetchFavorites]);
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please log in to add favorites");
-      return;
+      localStorage.setItem("favorites", JSON.stringify(favorites));
     }
+  }, [favorites]);
 
-    try {
-      const res = await fetch("http://localhost:3001/favorites/toggle", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId: product._id }),
-      });
+  const toggleFavorite = async (product) => {
+    const token = localStorage.getItem("token");
+    if (token && isAuthenticated) {
+      try {
+        const res = await fetch("http://localhost:3001/favorites/toggle", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ productId: product._id }),
+        });
 
-      if (!res.ok) {
-        console.error("Failed to toggle favorite:", res.status);
-        return;
+        if (!res.ok) {
+          console.error("Failed to toggle favorite:", res.status);
+          return;
+        }
+
+        await fetchFavorites();
+      } catch (err) {
+        console.error("toggleFavorite (server) error:", err);
       }
-
-      fetchFavorites(); // refresh favorites after toggle
-    } catch (err) {
-      console.error(err);
+    } else {
+      setFavorites((prev) => {
+        const exists = prev.some((p) => p._id === product._id);
+        if (exists) {
+          return prev.filter((p) => p._id !== product._id);
+        } else {
+          return [...prev, product];
+        }
+      });
     }
   };
 

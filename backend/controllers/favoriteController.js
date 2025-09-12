@@ -13,7 +13,8 @@ export const toggleFavorite = async (req, res) => {
     const existing = await Favorite.findOne({ user: userId, product: productId });
 
     if (existing) {
-      await existing.remove();
+      // old: await existing.remove();
+      await Favorite.findByIdAndDelete(existing._id); // ✅ new way
       return res.json({ msg: "Removed from favorites" });
     }
 
@@ -29,9 +30,9 @@ export const toggleFavorite = async (req, res) => {
 
 // Get all favorites for a user
 export const getFavorites = async (req, res) => {
-  const userId = req.user.id;
 
   try {
+    const userId = req.user.id;
     const favorites = await Favorite.find({ user: userId }).populate("product");
     res.json(favorites.map(f => f.product)); // send only products
   } catch (err) {
