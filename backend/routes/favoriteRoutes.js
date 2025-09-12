@@ -1,13 +1,10 @@
 import express from "express";
-import { toggleFavorite, getFavorites } from "../controllers/favoriteController.js";
 import { verifyToken } from "../middleware/auth.js";
+import { toggleFavorite , getFavorites} from "../controllers/favoriteController.js";
 
 const router = express.Router();
 
-// Get user's favorites
-router.get("/", verifyToken, getFavorites);
-
-// Toggle favorite product
-router.post("/toggle", verifyToken, toggleFavorite);
+router.get("/", verifyToken, getFavorites); // GET favorites
+router.post("/toggle", verifyToken, toggleFavorite); // POST toggle
 
 export default router;

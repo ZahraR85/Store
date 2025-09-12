@@ -11,6 +11,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     fetchProducts();
+    // eslint-disable-next-line
   }, [gender, categoryId, subcategory]);
 
   const fetchProducts = async () => {
@@ -38,9 +39,9 @@ const ProductPage = () => {
     }
   };
 
-  // Check if product is in favorites
-  const isFavorite = (productId) =>
-    favorites.some((f) => f.product._id === productId);
+  const isFavorite = (productId) => {
+    return favorites.some((f) => f._id === productId);
+  };
 
   return (
     <div className="p-6">
@@ -57,7 +58,7 @@ const ProductPage = () => {
           {products.map((p) => (
             <div key={p._id} className="border rounded-lg p-4 shadow relative">
               <button
-                onClick={() => toggleFavorite(p._id)}
+                onClick={() => toggleFavorite(p)}
                 className="absolute top-2 right-2 text-xl"
               >
                 <FaHeart

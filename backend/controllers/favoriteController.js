@@ -1,11 +1,13 @@
 import Favorite from "../models/Favorite.js";
 
 // Toggle favorite product
+
 export const toggleFavorite = async (req, res) => {
   const { productId } = req.body;
-  const userId = req.user.id;
+ const userId = req.user.id; // will now correctly have the user ID
 
   if (!productId) return res.status(400).json({ msg: "Product ID is required" });
+  if (!userId) return res.status(401).json({ msg: "User not authorized" });
 
   try {
     const existing = await Favorite.findOne({ user: userId, product: productId });
@@ -17,6 +19,7 @@ export const toggleFavorite = async (req, res) => {
 
     const newFav = new Favorite({ user: userId, product: productId });
     await newFav.save();
+
     res.json({ msg: "Added to favorites" });
   } catch (err) {
     console.error(err);

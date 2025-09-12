@@ -12,30 +12,26 @@ const FavoritesPage = () => {
         <p>No favorite products yet.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {favorites.map((fav) => {
-            const product = fav.product; // Because favorite model has product populated
-            return (
-              <div
-                key={product._id}
-                className="border rounded-lg p-4 shadow relative"
+          {favorites.map((p) => (
+            <div key={p._id} className="border rounded-lg p-4 shadow relative">
+              <img
+                src={p.images[0]}
+                alt={p.name}
+                className="h-48 w-full object-cover rounded"
+              />
+
+              <button
+                onClick={() => toggleFavorite(p)}
+                className="absolute top-2 right-2 text-xl"
               >
-                <img
-                  src={product.images[0]}
-                  alt={product.name}
-                  className="h-48 w-full object-cover rounded"
-                />
-                <button
-                  onClick={() => toggleFavorite(product._id)}
-                  className="absolute top-2 right-2 text-xl"
-                >
-                  <FaHeart className="text-red-500" />
-                </button>
-                <h2 className="text-lg font-semibold mt-2">{product.name}</h2>
-                <p className="text-gray-600">{product.brand}</p>
-                <p className="text-gray-900 font-bold">€{product.price}</p>
-              </div>
-            );
-          })}
+                <FaHeart className="text-red-500" />
+              </button>
+
+              <h2 className="text-lg font-semibold mt-2">{p.name}</h2>
+              <p className="text-gray-600">{p.brand}</p>
+              <p className="text-gray-900 font-bold">€{p.price}</p>
+            </div>
+          ))}
         </div>
       )}
     </div>
