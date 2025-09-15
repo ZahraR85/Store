@@ -20,11 +20,6 @@ const Footer = () => {
                 About Us
               </Link>
             </li>
-            <li className="hidden md:block">
-              <Link to="/Gallery" className="hover:underline">
-                Gallery
-              </Link>
-            </li>
             <li>
               <Link to="/FAQ" className="hover:underline">
                 FAQ

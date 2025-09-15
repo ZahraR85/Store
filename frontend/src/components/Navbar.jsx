@@ -80,12 +80,7 @@ const Navbar = () => {
                 className="flex items-center space-x-1 hover:underline"
               >
                 <FaHome className="text-xl" />
-                <span>Home</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/Gallery" className="hover:underline">
-                Gallery
+                {/* <span>Home</span> */}
               </Link>
             </li>
           </ul>
@@ -271,7 +266,6 @@ const Navbar = () => {
         <div className="fixed inset-0 z-50 flex">
           <div className="w-64 bg-BgKhaki shadow-lg p-4">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-BgFont font-semibold text-xl">Menu</span>
               <button onClick={() => setMenuOpen(false)}>
                 <FaTimes className="text-2xl" />
               </button>
@@ -279,10 +273,10 @@ const Navbar = () => {
 
             <ul className="space-y-3">
               <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/Gallery">Gallery</Link>
+                <Link to="/">
+                  {" "}
+                  <FaHome className="text-xl" />
+                </Link>
               </li>
               {genders.map((gender) => {
                 const genderCategories = categories.filter(
@@ -294,7 +288,7 @@ const Navbar = () => {
                       onClick={() =>
                         setOpenGender(openGender === gender ? null : gender)
                       }
-                      className="font-bold capitalize w-full text-left"
+                      className="font-semibold capitalize w-full text-left"
                     >
                       {gender}
                     </button>
@@ -337,18 +331,42 @@ const Navbar = () => {
                   </li>
                 );
               })}
-              <div className="flex flex-col gap-2 mt-4">
-                <Link to="/admin" className="text-BgFont hover:underline">
-                  Admin Panel
+
+              {isAuthenticated && role === "admin" && (
+                <div className="flex flex-col gap-2 mt-4">
+                  <Link
+                    to="/admin"
+                    className="font-semibold capitalize text-BgFont hover:underline"
+                  >
+                    Admin Panel
+                  </Link>
+                </div>
+              )}
+              <li>
+                <Link to="/favorites" className="hover:underline">
+                  ❤️
                 </Link>
-              </div>
+              </li>
+              <li>
+                <Link
+                  to="/ShoppingCard"
+                  className="flex items-center space-x-1 hover:underline"
+                >
+                  <FaShoppingCart className="text-xl" />
+                  {isAuthenticated && shoppingCardCount > 0 && (
+                    <span className="ml-2 text-red-600">
+                      {shoppingCardCount}
+                    </span>
+                  )}
+                </Link>
+              </li>
             </ul>
 
             <hr className="my-4" />
 
             {isAuthenticated ? (
               <button
-                className="ml-2 text-BgFont hover:underline"
+                className="ml-2 font-semibold capitalize text-BgFont hover:underline"
                 onClick={signOut}
               >
                 Sign Out
