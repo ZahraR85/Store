@@ -25,7 +25,8 @@ router.post(
 
 // Get all products
 router.get("/", getAllProducts);
-
+// Search products by name (case-insensitive)
+router.get('/search', getProductsBySearch);
 // Get product by ID
 router.get("/:id", getProductById);
 
@@ -40,7 +41,8 @@ router.get(
   "/gender/:gender/category/:categoryId/subcategory/:subcategory",
   getProductsByGenderCategorySubcategory
 );
-router.get('/', getProductsBySearch);
+
+
 // Update product
 router.put("/:id", fileUploader.array("images", 15), cloudUploader, updateProduct);
 

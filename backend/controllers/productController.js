@@ -171,20 +171,23 @@ export const getProductsByGenderCategorySubcategory = async (req, res) => {
   }
 };
 // Search products by name (case-insensitive)
+function escapeRegex(str) {
+  return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
 export const getProductsBySearch = async (req, res) => {
   try {
-    const { name } = req.query; // Destructure the 'name' from the query parameters
-    let query = {}; // Initialize an empty query object
+    const { name } = req.query;
+    let query = {};
 
-    // If a 'name' query exists, build a search condition
     if (name) {
-      // Use a regular expression for a case-insensitive search
-      query.name = { $regex: new RegExp(name, 'i') };
+      query.name = { $regex: new RegExp(escapeRegex(name), "i") };
     }
 
     const products = await Product.find(query);
     res.status(200).json(products);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Search error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
