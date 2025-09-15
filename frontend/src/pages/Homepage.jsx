@@ -39,7 +39,7 @@ const Homepage = () => {
       <div className="relative h-[80vh] w-full overflow-hidden">
         <video
           className="absolute top-0 left-0 w-full h-full object-cover"
-          src="https://www.youtube.com/watch?v=IFZ-7hM689E"
+          src="../../public/video1.mp4"
           autoPlay
           loop
           muted
