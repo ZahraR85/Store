@@ -109,7 +109,7 @@ const Navbar = () => {
           </li>
           {/* Search Overlay */}
           {searchOpen && (
-            <div className="fixed inset-0 bg-white z-50 flex flex-col p-6">
+            <div className="fixed top-0 right-0 w-1/3 bg-white z-50 flex flex-col p-6">
               <div className="flex items-center border-b pb-2">
                 <FaSearch className="text-gray-600 mr-2" />
                 <input
@@ -117,7 +117,7 @@ const Navbar = () => {
                   value={searchTerm}
                   onChange={(e) => handleSearch(e.target.value)}
                   placeholder="Search for products..."
-                  className="flex-1 outline-none text-lg"
+                  className="flex-1 outline-none text-m"
                   autoFocus
                 />
                 <button
@@ -128,7 +128,7 @@ const Navbar = () => {
                   }}
                   className="ml-4 text-gray-600"
                 >
-                  <FaTimes className="text-2xl" />
+                  <FaTimes className="text-xl" />
                 </button>
               </div>
               <ul className="mt-4 overflow-y-auto">
