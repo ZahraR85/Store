@@ -1,20 +1,53 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
-import logo from "../images/Logo.png";
 import {
   FaHome,
   FaUser,
   FaShoppingCart,
   FaTimes,
   FaBars,
+  FaSearch, // FaSearch import was missing
 } from "react-icons/fa";
+import logo from "../images/Logo.png";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [openGender, setOpenGender] = useState(null);
   const [openCategory, setOpenCategory] = useState(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const navigate = useNavigate();
+
+  const handleSearch = async (query) => {
+    setSearchTerm(query);
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const res = await fetch(
+        `http://localhost:3001/products/search?name=${encodeURIComponent(
+          query
+        )}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setSuggestions(data);
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+    }
+  };
+
+  const handleSelect = (name) => {
+    setSearchOpen(false);
+    setSearchTerm("");
+    setSuggestions([]);
+    navigate(`/?search=${encodeURIComponent(name)}`);
+  };
 
   const { isAuthenticated, role, signOut, shoppingCardCount } = useAppContext();
 
@@ -47,12 +80,7 @@ const Navbar = () => {
                 className="flex items-center space-x-1 hover:underline"
               >
                 <FaHome className="text-xl" />
-                <span>Home</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/Gallery" className="hover:underline">
-                Gallery
+                {/* <span>Home</span> */}
               </Link>
             </li>
           </ul>
@@ -65,6 +93,58 @@ const Navbar = () => {
 
         {/* Right nav */}
         <ul className="flex items-center space-x-6 font-bold text-BgFont">
+          {/* Search Icon */}
+          <li className="relative">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hover:underline"
+            >
+              <FaSearch className="text-xl" />
+            </button>
+          </li>
+          {/* Search Overlay */}
+          {searchOpen && (
+            <div className="fixed top-0 right-0 w-1/3 bg-white z-50 flex flex-col p-6">
+              <div className="flex items-center border-b pb-2">
+                <FaSearch className="text-gray-600 mr-2" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder="Search for products..."
+                  className="flex-1 outline-none text-m"
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    setSearchOpen(false);
+                    setSearchTerm("");
+                    setSuggestions([]);
+                  }}
+                  className="ml-4 text-gray-600"
+                >
+                  <FaTimes className="text-xl" />
+                </button>
+              </div>
+              <ul className="mt-4 overflow-y-auto">
+                {suggestions.length > 0
+                  ? suggestions.map((p) => (
+                      <li
+                        key={p._id}
+                        className="cursor-pointer p-2 text-gray-800 hover:bg-gray-200"
+                        onClick={() => handleSelect(p.name)}
+                      >
+                        {p.name}
+                      </li>
+                    ))
+                  : searchTerm && (
+                      <li className="p-2 text-gray-500">
+                        No results for "{searchTerm}"
+                      </li>
+                    )}
+              </ul>
+            </div>
+          )}
           <li>
             <Link to="/favorites" className="hover:underline">
               ❤️
@@ -76,7 +156,6 @@ const Navbar = () => {
               className="flex items-center space-x-1 hover:underline"
             >
               <FaShoppingCart className="text-xl" />
-              {/* <span className="text-sm md:text-base">Shopping Card</span> */}
               {isAuthenticated && shoppingCardCount > 0 && (
                 <span className="ml-2 text-red-600">{shoppingCardCount}</span>
               )}
@@ -187,7 +266,6 @@ const Navbar = () => {
         <div className="fixed inset-0 z-50 flex">
           <div className="w-64 bg-BgKhaki shadow-lg p-4">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-BgFont font-semibold text-xl">Menu</span>
               <button onClick={() => setMenuOpen(false)}>
                 <FaTimes className="text-2xl" />
               </button>
@@ -195,10 +273,10 @@ const Navbar = () => {
 
             <ul className="space-y-3">
               <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/Gallery">Gallery</Link>
+                <Link to="/">
+                  {" "}
+                  <FaHome className="text-xl" />
+                </Link>
               </li>
               {genders.map((gender) => {
                 const genderCategories = categories.filter(
@@ -210,7 +288,7 @@ const Navbar = () => {
                       onClick={() =>
                         setOpenGender(openGender === gender ? null : gender)
                       }
-                      className="font-bold capitalize w-full text-left"
+                      className="font-semibold capitalize w-full text-left"
                     >
                       {gender}
                     </button>
@@ -253,18 +331,42 @@ const Navbar = () => {
                   </li>
                 );
               })}
-              <div className="flex flex-col gap-2 mt-4">
-                <Link to="/admin" className="text-BgFont hover:underline">
-                  Admin Panel
+
+              {isAuthenticated && role === "admin" && (
+                <div className="flex flex-col gap-2 mt-4">
+                  <Link
+                    to="/admin"
+                    className="font-semibold capitalize text-BgFont hover:underline"
+                  >
+                    Admin Panel
+                  </Link>
+                </div>
+              )}
+              <li>
+                <Link to="/favorites" className="hover:underline">
+                  ❤️
                 </Link>
-              </div>
+              </li>
+              <li>
+                <Link
+                  to="/ShoppingCard"
+                  className="flex items-center space-x-1 hover:underline"
+                >
+                  <FaShoppingCart className="text-xl" />
+                  {isAuthenticated && shoppingCardCount > 0 && (
+                    <span className="ml-2 text-red-600">
+                      {shoppingCardCount}
+                    </span>
+                  )}
+                </Link>
+              </li>
             </ul>
 
             <hr className="my-4" />
 
             {isAuthenticated ? (
               <button
-                className="ml-2 text-BgFont hover:underline"
+                className="ml-2 font-semibold capitalize text-BgFont hover:underline"
                 onClick={signOut}
               >
                 Sign Out

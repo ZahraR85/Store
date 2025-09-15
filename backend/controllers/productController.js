@@ -170,3 +170,24 @@ export const getProductsByGenderCategorySubcategory = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch products by gender, category, and subcategory" });
   }
 };
+// Search products by name (case-insensitive)
+function escapeRegex(str) {
+  return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
+export const getProductsBySearch = async (req, res) => {
+  try {
+    const { name } = req.query;
+    let query = {};
+
+    if (name) {
+      query.name = { $regex: new RegExp(escapeRegex(name), "i") };
+    }
+
+    const products = await Product.find(query);
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
