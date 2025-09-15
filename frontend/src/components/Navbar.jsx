@@ -15,7 +15,10 @@ const Navbar = () => {
   const [categories, setCategories] = useState([]);
   const [openGender, setOpenGender] = useState(null);
   const [openCategory, setOpenCategory] = useState(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
+  const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
   const { isAuthenticated, role, signOut, shoppingCardCount } = useAppContext();
 
   useEffect(() => {
@@ -65,27 +68,33 @@ const Navbar = () => {
 
         {/* Right nav */}
         <ul className="flex items-center space-x-6 font-bold text-BgFont">
-          {/* Search Input */}
+          {/* Search Icon */}
           <li className="relative">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const query = e.target.search.value.trim();
-                if (query) {
-                  window.location.href = `/products/search?name=${encodeURIComponent(
-                    query
-                  )}`;
-                }
-              }}
-            >
-              <input
-                type="text"
-                name="search"
-                placeholder="Search products..."
-                className="px-3 py-1 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 text-black"
-              />
-            </form>
+            <button onClick={toggleSearch} className="hover:text-gray-400">
+              🔍
+            </button>
           </li>
+          {/* Search Overlay */}
+          {isSearchOpen && (
+            <div className="absolute top-0 left-0 w-[50%] h-full bg-white z-50 flex flex-col">
+              <div className="flex items-center p-4 border-b">
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="flex-grow text-lg p-2 border rounded"
+                />
+                <button
+                  onClick={() => setIsSearchOpen(false)}
+                  className="ml-2 text-lg"
+                >
+                  ✖
+                </button>
+              </div>
+              {/* Suggestion list goes here */}
+            </div>
+          )}
           <li>
             <Link to="/favorites" className="hover:underline">
               ❤️

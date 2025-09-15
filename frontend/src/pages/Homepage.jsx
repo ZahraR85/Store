@@ -37,7 +37,7 @@ const Homepage = () => {
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       fetchProducts(searchTerm);
-    }, 500); // debounce for smoother UX (0.5 sec)
+    }, 200); // debounce for smoother UX (0.5 sec)
 
     return () => clearTimeout(delayDebounce);
   }, [searchTerm]);
