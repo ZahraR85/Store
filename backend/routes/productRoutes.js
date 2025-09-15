@@ -8,6 +8,7 @@ import {
   getProductsByGender,
   getProductsByGenderAndCategory,
   getProductsByGenderCategorySubcategory,
+  getProductsBySearch
 } from "../controllers/productController.js";
 import fileUploader from "../middleware/fileUploader.js";
 import cloudUploader from "../middleware/cloudinaryMultiple.js";
@@ -39,7 +40,7 @@ router.get(
   "/gender/:gender/category/:categoryId/subcategory/:subcategory",
   getProductsByGenderCategorySubcategory
 );
-
+router.get('/', getProductsBySearch);
 // Update product
 router.put("/:id", fileUploader.array("images", 15), cloudUploader, updateProduct);
 

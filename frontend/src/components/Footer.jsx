@@ -41,9 +41,9 @@ const Footer = () => {
             className="w-24 h-auto mb-4 md:w-32"
           />
           <p className="text-xs md:text-sm mb-4 hidden md:block">
-            Your ultimate wedding planner to make your big day unforgettable.
+            Buy all thing in your Derams!
           </p>
-          <p className="text-xs">© 2025 I SAID YES. All Rights Reserved.</p>
+          <p className="text-xs">© 2025 Number One. All Rights Reserved.</p>
         </div>
 
         {/* Contact Section */}
@@ -51,12 +51,12 @@ const Footer = () => {
           {/* <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6">CONTACT</h3>*/}
           <p className="mb-2 text-sm md:text-base">
             Email:{" "}
-            <a href="mailto:info@isaidyes.com" className="hover:underline">
-              info@isaidyes.com
+            <a href="mailto:info@numberone.com" className="hover:underline">
+              info@NumberOne.com
             </a>
           </p>
           <p className="mb-4 text-sm md:mb-6 md:text-base">
-            Phone: +49 (555) 123-4567
+            Phone: +49 (777) 123-4567
           </p>
           <div className="flex justify-center md:justify-start space-x-3 text-lg md:text-2xl">
             <a href="#" className="hover:text-BgPinkDark">

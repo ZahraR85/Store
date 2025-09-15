@@ -65,6 +65,27 @@ const Navbar = () => {
 
         {/* Right nav */}
         <ul className="flex items-center space-x-6 font-bold text-BgFont">
+          {/* Search Input */}
+          <li className="relative">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const query = e.target.search.value.trim();
+                if (query) {
+                  window.location.href = `/products/search?name=${encodeURIComponent(
+                    query
+                  )}`;
+                }
+              }}
+            >
+              <input
+                type="text"
+                name="search"
+                placeholder="Search products..."
+                className="px-3 py-1 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 text-black"
+              />
+            </form>
+          </li>
           <li>
             <Link to="/favorites" className="hover:underline">
               ❤️
