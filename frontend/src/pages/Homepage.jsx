@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
+import { useLocation } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
 const Homepage = () => {
   const [products, setProducts] = useState([]);
   const [hoveredProductId, setHoveredProductId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
 
-  // Fetch products (all or by search)
   const fetchProducts = async (query = "") => {
     try {
       let url = "http://localhost:3001/products";
@@ -16,31 +16,20 @@ const Homepage = () => {
           query
         )}`;
       }
-
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const data = await response.json();
+      const res = await fetch(url);
+      const data = await res.json();
       setProducts(data);
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
+    } catch (err) {
+      console.error("Fetch products error:", err);
     }
   };
 
-  // Initial load
+  // check if ?search exists
   useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  // Search as user types
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchProducts(searchTerm);
-    }, 200); // debounce for smoother UX (0.5 sec)
-
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm]);
+    const params = new URLSearchParams(location.search);
+    const search = params.get("search") || "";
+    fetchProducts(search);
+  }, [location.search]);
 
   return (
     <div className="bg-white min-h-screen">
@@ -74,7 +63,7 @@ const Homepage = () => {
         </div>
       </div>
 
-      {/* Search bar */}
+      {/* Search bar 
       <div className="container mx-auto px-4 mt-8">
         <input
           type="text"
@@ -84,7 +73,7 @@ const Homepage = () => {
           className="w-full md:w-1/2 block mx-auto px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 text-black"
         />
       </div>
-
+*/}
       {/* Interactive Product Grid */}
       <div id="products" className="container mx-auto py-16">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">

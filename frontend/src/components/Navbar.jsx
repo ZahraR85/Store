@@ -1,24 +1,54 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
-import logo from "../images/Logo.png";
 import {
   FaHome,
   FaUser,
   FaShoppingCart,
   FaTimes,
   FaBars,
+  FaSearch, // FaSearch import was missing
 } from "react-icons/fa";
+import logo from "../images/Logo.png";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [openGender, setOpenGender] = useState(null);
   const [openCategory, setOpenCategory] = useState(null);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const navigate = useNavigate();
 
-  const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
+  const handleSearch = async (query) => {
+    setSearchTerm(query);
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const res = await fetch(
+        `http://localhost:3001/products/search?name=${encodeURIComponent(
+          query
+        )}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setSuggestions(data);
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+    }
+  };
+
+  const handleSelect = (name) => {
+    setSearchOpen(false);
+    setSearchTerm("");
+    setSuggestions([]);
+    navigate(`/?search=${encodeURIComponent(name)}`);
+  };
+
   const { isAuthenticated, role, signOut, shoppingCardCount } = useAppContext();
 
   useEffect(() => {
@@ -70,29 +100,54 @@ const Navbar = () => {
         <ul className="flex items-center space-x-6 font-bold text-BgFont">
           {/* Search Icon */}
           <li className="relative">
-            <button onClick={toggleSearch} className="hover:text-gray-400">
-              🔍
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hover:underline"
+            >
+              <FaSearch className="text-xl" />
             </button>
           </li>
           {/* Search Overlay */}
-          {isSearchOpen && (
-            <div className="absolute top-0 left-0 w-[50%] h-full bg-white z-50 flex flex-col">
-              <div className="flex items-center p-4 border-b">
+          {searchOpen && (
+            <div className="fixed inset-0 bg-white z-50 flex flex-col p-6">
+              <div className="flex items-center border-b pb-2">
+                <FaSearch className="text-gray-600 mr-2" />
                 <input
                   type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="flex-grow text-lg p-2 border rounded"
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder="Search for products..."
+                  className="flex-1 outline-none text-lg"
+                  autoFocus
                 />
                 <button
-                  onClick={() => setIsSearchOpen(false)}
-                  className="ml-2 text-lg"
+                  onClick={() => {
+                    setSearchOpen(false);
+                    setSearchTerm("");
+                    setSuggestions([]);
+                  }}
+                  className="ml-4 text-gray-600"
                 >
-                  ✖
+                  <FaTimes className="text-2xl" />
                 </button>
               </div>
-              {/* Suggestion list goes here */}
+              <ul className="mt-4 overflow-y-auto">
+                {suggestions.length > 0
+                  ? suggestions.map((p) => (
+                      <li
+                        key={p._id}
+                        className="cursor-pointer p-2 text-gray-800 hover:bg-gray-200"
+                        onClick={() => handleSelect(p.name)}
+                      >
+                        {p.name}
+                      </li>
+                    ))
+                  : searchTerm && (
+                      <li className="p-2 text-gray-500">
+                        No results for "{searchTerm}"
+                      </li>
+                    )}
+              </ul>
             </div>
           )}
           <li>
@@ -106,7 +161,6 @@ const Navbar = () => {
               className="flex items-center space-x-1 hover:underline"
             >
               <FaShoppingCart className="text-xl" />
-              {/* <span className="text-sm md:text-base">Shopping Card</span> */}
               {isAuthenticated && shoppingCardCount > 0 && (
                 <span className="ml-2 text-red-600">{shoppingCardCount}</span>
               )}
