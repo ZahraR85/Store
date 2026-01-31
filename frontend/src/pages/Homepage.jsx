@@ -76,10 +76,7 @@ const Homepage = () => {
 */}
       {/* Interactive Product Grid */}
       <div id="products" className="container mx-auto py-16">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Featured Products
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 xl:grid-cols-4 gap-8 px-4">
           {products.length > 0 ? (
             products.map((product) => (
               <div
@@ -92,7 +89,7 @@ const Homepage = () => {
                   <img
                     src={product.images[0]}
                     alt={product.name}
-                    className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-300 ${
+                    className={`absolute top-0 left-0 w-72 h-72 object-cover transition-opacity duration-300 ${
                       hoveredProductId === product._id
                         ? "opacity-0"
                         : "opacity-100"
@@ -101,7 +98,7 @@ const Homepage = () => {
                   <img
                     src={product.images[1] || product.images[0]}
                     alt={product.name}
-                    className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-300 ${
+                    className={`absolute top-0 left-0 w-full h-full object-contain transition-opacity duration-300 ${
                       hoveredProductId === product._id
                         ? "opacity-100"
                         : "opacity-0"

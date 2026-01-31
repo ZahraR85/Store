@@ -54,7 +54,7 @@ const ProductPage = () => {
       {products.length === 0 ? (
         <p className="text-gray-500">No products found.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
           {products.map((p) => (
             <div key={p._id} className="border rounded-lg p-4 shadow relative">
               <button
@@ -71,7 +71,7 @@ const ProductPage = () => {
               <img
                 src={p.images[0]}
                 alt={p.name}
-                className="h-48 w-full object-cover rounded"
+                className="h-72 w-72 object-contain rounded"
               />
               <h2 className="text-lg font-semibold mt-2">{p.name}</h2>
               <p className="text-gray-600">{p.brand}</p>

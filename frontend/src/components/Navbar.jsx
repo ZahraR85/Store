@@ -7,7 +7,9 @@ import {
   FaShoppingCart,
   FaTimes,
   FaBars,
-  FaSearch, // FaSearch import was missing
+  FaSearch,
+  FaSignOutAlt,
+  FaSignInAlt,
 } from "react-icons/fa";
 import logo from "../images/Logo.png";
 
@@ -164,16 +166,16 @@ const Navbar = () => {
 
           <li>
             {isAuthenticated ? (
-              <button onClick={signOut} className="hover:underline">
-                Sign Out
-              </button>
+              <Link onClick={signOut} className="hover:underline">
+                {/*} <FaUser className="text-xl" />*/}
+                <FaSignOutAlt className="text-xl" />
+              </Link>
             ) : (
               <Link
                 to="/signin"
                 className="hidden lg:flex items-center space-x-1 hover:underline"
               >
                 <FaUser className="text-xl" />
-                <span>Signin | Register</span>
               </Link>
             )}
           </li>
@@ -342,7 +344,7 @@ const Navbar = () => {
                   </Link>
                 </div>
               )}
-              <li>
+              {/*<li>
                 <Link to="/favorites" className="hover:underline">
                   ❤️
                 </Link>
@@ -359,10 +361,9 @@ const Navbar = () => {
                     </span>
                   )}
                 </Link>
-              </li>
+              </li> */}
             </ul>
-
-            <hr className="my-4" />
+            {/*<hr className="my-4" />
 
             {isAuthenticated ? (
               <button
@@ -379,7 +380,7 @@ const Navbar = () => {
                 <FaUser className="text-xl text-BgFont" />
                 <span>Signin | Register</span>
               </Link>
-            )}
+            )}  */}
           </div>
           <div
             className="flex-1 bg-black opacity-50"
