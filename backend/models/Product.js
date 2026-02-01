@@ -4,7 +4,7 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
     gender: {
     type: String,
-    enum: ["men", "women", "kids", "home"],
+    enum: ["men", "women", "kids", "home", "All"],
     required: true,
     default: "All",
   },
