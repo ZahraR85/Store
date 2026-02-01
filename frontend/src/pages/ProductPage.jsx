@@ -47,7 +47,6 @@ const ProductPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Products</h1>
       <h2 className="text-2xl mb-4">
         {gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : ""}
         {headerName ? ` - ${headerName}` : ""}
@@ -86,17 +85,22 @@ const ProductPage = () => {
               />
 
               {/* Info */}
-              <h2 className="text-lg font-semibold mt-2">{p.name}</h2>
-              <p className="text-gray-600">{p.brand}</p>
+              <h2 className="text-sm font-semibold mt-2">{p.name}</h2>
+              <p className="text-m text-gray-600">{p.brand}</p>
               <p className="text-gray-900 font-bold">€{p.price}</p>
 
-              {/* Add to Cart (later) */}
-              <button
-                onClick={(e) => e.stopPropagation()}
-                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Add to Cart
-              </button>
+              {/* Colors */}
+              {p.colors?.length > 0 && (
+                <div className="flex gap-2 mt-2">
+                  {p.colors.map((color) => (
+                    <span
+                      key={color}
+                      className="w-3 h-3 rounded-full border"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

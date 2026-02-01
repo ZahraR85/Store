@@ -22,21 +22,21 @@ const ShoppingCart = () => {
               className="flex items-center gap-6 border-b py-4"
             >
               <img
-                src={item.product.images[0]}
-                alt={item.product.name}
+                src={item.product?.images?.[0] || "/placeholder.png"} // ✅ safe access
+                alt={item.product?.name || "Product"}
                 className="w-24 h-24 object-contain"
               />
-
               <div className="flex-1">
-                <h2 className="font-semibold">{item.product.name}</h2>
+                <h2 className="font-semibold">
+                  {item.product?.name || "Unknown"}
+                </h2>
                 <p className="text-sm text-gray-600">
                   Size: {item.size || "-"} | Color: {item.color || "-"}
                 </p>
                 <p>
-                  €{item.product.price} × {item.quantity}
+                  €{item.product?.price || 0} × {item.quantity}
                 </p>
               </div>
-
               <button
                 onClick={() => removeFromCart(item._id)}
                 className="text-red-500"
