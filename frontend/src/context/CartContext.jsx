@@ -6,39 +6,44 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [cartCount, setCartCount] = useState(0);
 
-  // Read token from localStorage
   const token = localStorage.getItem("token");
 
-  // Load cart from backend when app mounts
-  useEffect(() => {
-    const fetchCart = async () => {
-      if (!token) return; // skip if no token
+  // fetchCart outside of useEffect
+  const fetchCart = async () => {
+    if (!token) return;
 
-      try {
-        const res = await fetch("http://localhost:3001/cart", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-        setCartItems(data.items || []);
-      } catch (err) {
-        console.error("Failed to load cart:", err);
-      }
-    };
-    fetchCart();
+    try {
+      const res = await fetch("http://localhost:3001/cart", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      setCartItems(data.items || []);
+    } catch (err) {
+      console.error("Failed to load cart:", err);
+    }
+  };
+
+  // when token is changed (login/logout)
+  useEffect(() => {
+    if (token) {
+      fetchCart();
+    } else {
+      setCartItems([]); // logout → cart empty
+    }
   }, [token]);
 
-  // Update cart count
+  //counter of cart items
   useEffect(() => {
     const count = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     setCartCount(count);
   }, [cartItems]);
 
-  // Add item to cart
+  // ADD TO CART
   const addToCart = async (product, size, color) => {
     if (!token) {
-      console.log("No token found");
       alert("You must be logged in");
       return;
     }
@@ -48,7 +53,7 @@ export const CartProvider = ({ children }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ send token here
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           productId: product._id,
@@ -57,20 +62,14 @@ export const CartProvider = ({ children }) => {
         }),
       });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Failed to add to cart");
-      }
-
       const data = await res.json();
       setCartItems(data.items || []);
     } catch (err) {
       console.error(err);
-      alert(err.message);
     }
   };
 
-  // Remove item from cart
+  // REMOVE FROM CART
   const removeFromCart = async (cartItemId) => {
     if (!token) return alert("You must be logged in");
 
@@ -82,6 +81,7 @@ export const CartProvider = ({ children }) => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
+
       const data = await res.json();
       setCartItems(data.items || []);
     } catch (err) {
