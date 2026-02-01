@@ -25,7 +25,7 @@ function App() {
         />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/ShoppingCard" element={<ShoppingCart />} />
+        <Route path="/ShoppingCart" element={<ShoppingCart />} />
         {/* Admin Routes (commented out for now) */}
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>

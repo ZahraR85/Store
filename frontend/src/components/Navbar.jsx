@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
+import { useCart } from "../context/CartContext";
+
 import {
   FaHome,
   FaUser,
@@ -22,6 +24,7 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const navigate = useNavigate();
+  const { cartCount } = useCart();
 
   const handleSearch = async (query) => {
     setSearchTerm(query);
@@ -32,8 +35,8 @@ const Navbar = () => {
     try {
       const res = await fetch(
         `http://localhost:3001/products/search?name=${encodeURIComponent(
-          query
-        )}`
+          query,
+        )}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -154,12 +157,18 @@ const Navbar = () => {
           </li>
           <li>
             <Link
-              to="/ShoppingCard"
-              className="flex items-center space-x-1 hover:underline"
+              to="/ShoppingCart"
+              className="relative flex items-center hover:underline"
             >
               <FaShoppingCart className="text-xl" />
-              {isAuthenticated && shoppingCardCount > 0 && (
-                <span className="ml-2 text-red-600">{shoppingCardCount}</span>
+
+              {cartCount > 0 && (
+                <span
+                  className="absolute -top-2 -right-3 bg-red-600 text-white
+                      text-xs font-bold px-2 py-0.5 rounded-full"
+                >
+                  {cartCount}
+                </span>
               )}
             </Link>
           </li>
@@ -186,7 +195,7 @@ const Navbar = () => {
       <div className="hidden md:flex justify-center bg-gray-100 py-2 space-x-8 font-medium">
         {genders.map((gender) => {
           const genderCategories = categories.filter(
-            (c) => c.gender === gender
+            (c) => c.gender === gender,
           );
 
           return (
@@ -211,7 +220,7 @@ const Navbar = () => {
                         <button
                           onClick={() =>
                             setOpenCategory(
-                              openCategory === cat._id ? null : cat._id
+                              openCategory === cat._id ? null : cat._id,
                             )
                           }
                           className="font-semibold hover:text-black w-full text-left"
@@ -282,7 +291,7 @@ const Navbar = () => {
               </li>
               {genders.map((gender) => {
                 const genderCategories = categories.filter(
-                  (c) => c.gender === gender
+                  (c) => c.gender === gender,
                 );
                 return (
                   <li key={gender}>
@@ -301,7 +310,7 @@ const Navbar = () => {
                             <button
                               onClick={() =>
                                 setOpenCategory(
-                                  openCategory === cat._id ? null : cat._id
+                                  openCategory === cat._id ? null : cat._id,
                                 )
                               }
                               className="font-semibold w-full text-left"
@@ -317,7 +326,7 @@ const Navbar = () => {
                                         to={`/products/${gender}/${
                                           cat._id
                                         }/${encodeURIComponent(
-                                          sub.toLowerCase()
+                                          sub.toLowerCase(),
                                         )}`}
                                       >
                                         {sub}

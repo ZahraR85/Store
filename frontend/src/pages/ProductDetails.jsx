@@ -4,12 +4,15 @@ import { useCart } from "../context/CartContext";
 
 const ProductDetails = () => {
   const { id } = useParams();
+  const { addToCart } = useCart();
+
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
-  const { addToCart } = useCart();
+  const [isAdding, setIsAdding] = useState(false);
+
   useEffect(() => {
     fetchProduct();
   }, [id]);
@@ -18,13 +21,31 @@ const ProductDetails = () => {
     try {
       const res = await fetch(`http://localhost:3001/products/${id}`);
       const data = await res.json();
+
       setProduct(data);
       setCurrentIndex(0);
       setActiveImage(data.images[0]);
+
+      // Auto-select if only one option exists
+      if (data.sizes?.length === 1) {
+        setSelectedSize(data.sizes[0]);
+      } else {
+        setSelectedSize("");
+      }
+
+      if (data.colors?.length === 1) {
+        setSelectedColor(data.colors[0]);
+      } else {
+        setSelectedColor("");
+      }
     } catch (err) {
       console.error(err);
     }
   };
+
+  if (!product) return <p className="p-6">Loading...</p>;
+
+  /* ---------- Image pagination ---------- */
   const nextImage = () => {
     if (currentIndex < product.images.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -39,7 +60,12 @@ const ProductDetails = () => {
     }
   };
 
-  if (!product) return <p className="p-6">Loading...</p>;
+  /* ---------- Selection rules ---------- */
+  const sizeRequired = product.sizes?.length > 1;
+  const colorRequired = product.colors?.length > 1;
+
+  const canAddToCart =
+    (!sizeRequired || selectedSize) && (!colorRequired || selectedColor);
 
   return (
     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -86,7 +112,7 @@ const ProductDetails = () => {
                 setCurrentIndex(index);
               }}
               className={`w-20 h-20 object-contain border rounded cursor-pointer
-          ${currentIndex === index ? "border-blue-500" : ""}`}
+                ${currentIndex === index ? "border-blue-500" : ""}`}
             />
           ))}
         </div>
@@ -110,11 +136,11 @@ const ProductDetails = () => {
                   key={size}
                   onClick={() => setSelectedSize(size)}
                   className={`border px-4 py-1 rounded
-            ${
-              selectedSize === size
-                ? "bg-black text-white"
-                : "hover:bg-gray-100"
-            }`}
+                    ${
+                      selectedSize === size
+                        ? "bg-black text-white"
+                        : "hover:bg-gray-100"
+                    }`}
                 >
                   {size}
                 </button>
@@ -133,20 +159,29 @@ const ProductDetails = () => {
                   key={color}
                   onClick={() => setSelectedColor(color)}
                   className={`w-8 h-8 rounded-full border cursor-pointer
-            ${selectedColor === color ? "ring-2 ring-black" : ""}`}
+                    ${selectedColor === color ? "ring-2 ring-black" : ""}`}
                   style={{ backgroundColor: color }}
                 />
               ))}
             </div>
           </div>
         )}
-        {/* Button only works after selecting size + color */}
+
+        {/* Add to Cart */}
         <button
-          disabled={!selectedSize || !selectedColor}
-          onClick={() => addToCart(product, selectedSize, selectedColor)}
-          className="mt-8 bg-blue-500 text-white px-6 py-3 rounded disabled:opacity-40"
+          disabled={!canAddToCart || isAdding}
+          onClick={() => {
+            setIsAdding(true);
+            addToCart(product, selectedSize || null, selectedColor || null);
+
+            setTimeout(() => {
+              setIsAdding(false);
+            }, 1000);
+          }}
+          className="mt-8 bg-blue-500 text-white px-6 py-3 rounded
+            disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Add to Cart
+          {isAdding ? "Added ✓" : "Add to Cart"}
         </button>
       </div>
     </div>
