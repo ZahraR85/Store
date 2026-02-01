@@ -5,6 +5,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     fetchProduct();
@@ -15,9 +16,23 @@ const ProductDetails = () => {
       const res = await fetch(`http://localhost:3001/products/${id}`);
       const data = await res.json();
       setProduct(data);
+      setCurrentIndex(0);
       setActiveImage(data.images[0]);
     } catch (err) {
       console.error(err);
+    }
+  };
+  const nextImage = () => {
+    if (currentIndex < product.images.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setActiveImage(product.images[currentIndex + 1]);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+      setActiveImage(product.images[currentIndex - 1]);
     }
   };
 
@@ -33,15 +48,42 @@ const ProductDetails = () => {
           className="w-full h-[500px] object-contain border rounded"
         />
 
+        {/* Pagination */}
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={prevImage}
+            disabled={currentIndex === 0}
+            className="px-4 py-2 border rounded disabled:opacity-40"
+          >
+            ◀ Prev
+          </button>
+
+          <span className="text-sm text-gray-500">
+            {currentIndex + 1} / {product.images.length}
+          </span>
+
+          <button
+            onClick={nextImage}
+            disabled={currentIndex === product.images.length - 1}
+            className="px-4 py-2 border rounded disabled:opacity-40"
+          >
+            Next ▶
+          </button>
+        </div>
+
+        {/* Thumbnails */}
         <div className="flex gap-3 mt-4">
           {product.images.map((img, index) => (
             <img
               key={index}
               src={img}
               alt=""
-              onClick={() => setActiveImage(img)}
+              onClick={() => {
+                setActiveImage(img);
+                setCurrentIndex(index);
+              }}
               className={`w-20 h-20 object-contain border rounded cursor-pointer
-                ${activeImage === img ? "border-blue-500" : ""}`}
+          ${currentIndex === index ? "border-blue-500" : ""}`}
             />
           ))}
         </div>
