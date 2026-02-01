@@ -12,12 +12,14 @@ import {
 } from "../controllers/productController.js";
 import fileUploader from "../middleware/fileUploader.js";
 import cloudUploader from "../middleware/cloudinaryMultiple.js";
-
+import { verifyToken, adminOnly } from "../middleware/auth.js";
 const router = express.Router();
 
 // Create product with images
 router.post(
   "/",
+  verifyToken,
+  adminOnly,
   fileUploader.array("images", 15),
   cloudUploader,
   createProduct
