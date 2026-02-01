@@ -6,7 +6,7 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [cartCount, setCartCount] = useState(0);
 
-  // ✅ Read token from localStorage
+  // Read token from localStorage
   const token = localStorage.getItem("token");
 
   // Load cart from backend when app mounts
@@ -71,14 +71,17 @@ export const CartProvider = ({ children }) => {
   };
 
   // Remove item from cart
-  const removeFromCart = async (itemId) => {
+  const removeFromCart = async (cartItemId) => {
     if (!token) return alert("You must be logged in");
 
     try {
-      const res = await fetch(`http://localhost:3001/cart/remove/${itemId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `http://localhost:3001/cart/remove/${cartItemId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const data = await res.json();
       setCartItems(data.items || []);
     } catch (err) {
