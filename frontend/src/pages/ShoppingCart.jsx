@@ -1,11 +1,11 @@
 import { useCart } from "../context/CartContext";
 
 const ShoppingCart = () => {
-  const { cartItems, removeFromCart } = useCart();
+  const { cartItems, removeFromCart, updateCartItem, clearCart } = useCart();
 
   const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
   );
 
   return (
@@ -16,27 +16,29 @@ const ShoppingCart = () => {
         <p>Your cart is empty.</p>
       ) : (
         <>
-          {cartItems.map((item, index) => (
+          {cartItems.map((item) => (
             <div
-              key={index}
+              key={item._id}
               className="flex items-center gap-6 border-b py-4"
             >
               <img
-                src={item.images[0]}
-                alt={item.name}
+                src={item.product.images[0]}
+                alt={item.product.name}
                 className="w-24 h-24 object-contain"
               />
 
               <div className="flex-1">
-                <h2 className="font-semibold">{item.name}</h2>
+                <h2 className="font-semibold">{item.product.name}</h2>
                 <p className="text-sm text-gray-600">
-                  Size: {item.size} | Color: {item.color}
+                  Size: {item.size || "-"} | Color: {item.color || "-"}
                 </p>
-                <p>€{item.price} × {item.quantity}</p>
+                <p>
+                  €{item.product.price} × {item.quantity}
+                </p>
               </div>
 
               <button
-                onClick={() => removeFromCart(index)}
+                onClick={() => removeFromCart(item._id)}
                 className="text-red-500"
               >
                 Remove
@@ -44,9 +46,7 @@ const ShoppingCart = () => {
             </div>
           ))}
 
-          <h2 className="text-xl font-bold mt-6">
-            Total: €{total.toFixed(2)}
-          </h2>
+          <h2 className="text-xl font-bold mt-6">Total: €{total.toFixed(2)}</h2>
         </>
       )}
     </div>

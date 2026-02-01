@@ -170,16 +170,20 @@ const ProductDetails = () => {
         {/* Add to Cart */}
         <button
           disabled={!canAddToCart || isAdding}
-          onClick={() => {
+          onClick={async () => {
             setIsAdding(true);
-            addToCart(product, selectedSize || null, selectedColor || null);
+            await addToCart(
+              product,
+              selectedSize || null,
+              selectedColor || null,
+            );
 
             setTimeout(() => {
               setIsAdding(false);
-            }, 1000);
+            }, 2000); // disable for 2s
           }}
           className="mt-8 bg-blue-500 text-white px-6 py-3 rounded
-            disabled:opacity-40 disabled:cursor-not-allowed"
+    disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {isAdding ? "Added ✓" : "Add to Cart"}
         </button>
