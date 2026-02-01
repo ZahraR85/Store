@@ -8,6 +8,7 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 import ProductDetails from "./pages/ProductDetails";
 import FavoritesPage from "./pages/FavoritesPage.jsx";
+import ShoppingCart from "./pages/ShoppingCart.jsx";
 function App() {
   return (
     <Layout>
@@ -24,6 +25,7 @@ function App() {
         />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/ShoppingCard" element={<ShoppingCart />} />
         {/* Admin Routes (commented out for now) */}
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>

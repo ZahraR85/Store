@@ -1,12 +1,15 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useCart } from "../context/CartContext";
 
 const ProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const { addToCart } = useCart();
   useEffect(() => {
     fetchProduct();
   }, [id]);
@@ -105,7 +108,13 @@ const ProductDetails = () => {
               {product.sizes.map((size) => (
                 <button
                   key={size}
-                  className="border px-4 py-1 rounded hover:bg-gray-100"
+                  onClick={() => setSelectedSize(size)}
+                  className={`border px-4 py-1 rounded
+            ${
+              selectedSize === size
+                ? "bg-black text-white"
+                : "hover:bg-gray-100"
+            }`}
                 >
                   {size}
                 </button>
@@ -118,19 +127,25 @@ const ProductDetails = () => {
         {product.colors?.length > 0 && (
           <div className="mt-6">
             <h3 className="font-semibold mb-2">Color</h3>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               {product.colors.map((color) => (
                 <span
                   key={color}
-                  className="w-8 h-8 rounded-full border"
+                  onClick={() => setSelectedColor(color)}
+                  className={`w-8 h-8 rounded-full border cursor-pointer
+            ${selectedColor === color ? "ring-2 ring-black" : ""}`}
                   style={{ backgroundColor: color }}
                 />
               ))}
             </div>
           </div>
         )}
-
-        <button className="mt-8 bg-blue-500 text-white px-6 py-3 rounded">
+        {/* Button only works after selecting size + color */}
+        <button
+          disabled={!selectedSize || !selectedColor}
+          onClick={() => addToCart(product, selectedSize, selectedColor)}
+          className="mt-8 bg-blue-500 text-white px-6 py-3 rounded disabled:opacity-40"
+        >
           Add to Cart
         </button>
       </div>
