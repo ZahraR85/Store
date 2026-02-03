@@ -46,7 +46,8 @@ router.get(
 
 
 // Update product
-router.put("/:id", fileUploader.array("images", 15), cloudUploader, updateProduct);
+router.put("/:id", verifyToken, adminOnly,
+  fileUploader.array("images", 15), cloudUploader, updateProduct);
 
 // Delete product
 router.delete("/:id", deleteProduct);
