@@ -85,50 +85,35 @@ export const updateProduct = async (req, res) => {
       existingImages,
     } = req.body;
 
-    // the fields to be updated
-    const updateData = {
-      name,
-      description,
-      price,
-      brand,
-      stock,
-      subcategory,
-    };
+    const updateData = { name, description, price, brand, stock, subcategory };
 
-    // sizes and colors are converted to arrays if provided
-    if (sizes) updateData.sizes = sizes.split(",").map((s) => s.trim());
-    if (colors) updateData.colors = colors.split(",").map((c) => c.trim());
+    if (sizes) updateData.sizes = sizes.split(",").map(s => s.trim());
+    if (colors) updateData.colors = colors.split(",").map(c => c.trim());
 
-    // new images uploaded to the cloud
     const newImages = req.cloudinaryURLs || [];
 
-    // combine old and new images
+    // Combine old + new images, or skip if both empty
     let finalImages = [];
     if (existingImages) {
-      finalImages = Array.isArray(existingImages)
-        ? existingImages
-        : [existingImages];
+      finalImages = Array.isArray(existingImages) ? existingImages : [existingImages];
     }
-    if (finalImages.length > 0 || newImages.length > 0) {
-      updateData.images = [...finalImages, ...newImages];
+    if (newImages.length > 0) {
+      finalImages = [...finalImages, ...newImages];
     }
 
-    // update product
-    const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-    });
+    if (finalImages.length > 0) updateData.images = finalImages;
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     res.json(product);
   } catch (error) {
     console.error("Update Product Error:", error);
-    res.status(400).json({
-      error: "Failed to update product",
-      details: error.message,
-    });
+    res.status(500).json({ error: "Failed to update product", details: error.message });
   }
 };
+
 
 // Delete product
 export const deleteProduct = async (req, res) => {

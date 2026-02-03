@@ -50,12 +50,20 @@ router.put(
   verifyToken,
   adminOnly,
   (req, res, next) => {
-    // Only run multer and cloudUploader if new files are present
-    const hasFiles = req.headers["content-type"]?.startsWith("multipart/form-data");
-    if (hasFiles) {
+    // Check if request has new files
+    const isMultipart = req.headers["content-type"]?.startsWith("multipart/form-data");
+
+    if (isMultipart) {
+      // Use multer only if files are present
       fileUploader.array("images", 15)(req, res, (err) => {
         if (err) return next(err);
-        cloudUploader(req, res, next);
+
+        // Only run cloudUploader if new files exist
+        if (req.files && req.files.length > 0) {
+          cloudUploader(req, res, next);
+        } else {
+          next();
+        }
       });
     } else {
       next();
