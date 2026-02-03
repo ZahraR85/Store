@@ -44,10 +44,26 @@ router.get(
   getProductsByGenderCategorySubcategory
 );
 
+// Update product with optional new images
+router.put(
+  "/:id",
+  verifyToken,
+  adminOnly,
+  (req, res, next) => {
+    // Only run multer and cloudUploader if new files are present
+    const hasFiles = req.headers["content-type"]?.startsWith("multipart/form-data");
+    if (hasFiles) {
+      fileUploader.array("images", 15)(req, res, (err) => {
+        if (err) return next(err);
+        cloudUploader(req, res, next);
+      });
+    } else {
+      next();
+    }
+  },
+  updateProduct
+);
 
-// Update product
-router.put("/:id", verifyToken, adminOnly,
-  fileUploader.array("images", 15), cloudUploader, updateProduct);
 
 // Delete product
 router.delete("/:id", deleteProduct);

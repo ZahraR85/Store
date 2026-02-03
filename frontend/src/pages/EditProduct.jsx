@@ -29,9 +29,13 @@ const EditProduct = () => {
   }, [role]);
 
   const fetchProduct = async () => {
-    const res = await fetch(`http://localhost:3001/products/${id}`);
-    const data = await res.json();
-    setProduct(data);
+    try {
+      const res = await fetch(`http://localhost:3001/products/${id}`);
+      const data = await res.json();
+      setProduct(data);
+    } catch (err) {
+      console.error("Failed to fetch product:", err);
+    }
   };
 
   const handleChange = (e) => {
@@ -50,55 +54,57 @@ const EditProduct = () => {
   };
 
   const handleUpdate = async () => {
+    // at least one image required
     if (product.images.length === 0 && newImages.length === 0) {
       alert("At least one image is required");
       return;
     }
+
     const formData = new FormData();
 
+    // Only editable fields
     formData.append("name", product.name);
     formData.append("price", product.price);
     formData.append("description", product.description);
     formData.append("brand", product.brand);
     formData.append("stock", product.stock);
-    formData.append("gender", product.gender);
 
-    // category can be populated object or ID
-    formData.append(
-      "category",
-      typeof product.category === "object"
-        ? product.category._id
-        : product.category,
-    );
-    // old images (after delete)
-    formData.append("existingImages", JSON.stringify(product.images));
+    // Existing images (if not removed)
+    product.images.forEach((img) => {
+      formData.append("existingImages", img);
+    });
 
-    // new images
+    // New images
     newImages.forEach((file) => {
       formData.append("images", file);
     });
 
-    const res = await fetch(`http://localhost:3001/products/${id}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+    try {
+      const res = await fetch(`http://localhost:3001/products/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-    if (res.ok) {
-      alert("Product updated successfully");
-      navigate("/admin/products");
-    } else {
-      const err = await res.json();
-      console.error("Update failed:", err);
+      if (res.ok) {
+        alert("Product updated successfully");
+        navigate("/admin/products");
+      } else {
+        const err = await res.json();
+        console.error("Update failed:", err);
+        alert("Failed to update product. Check console for details.");
+      }
+    } catch (err) {
+      console.error("Update error:", err);
+      alert("Server error while updating product");
     }
   };
 
   return (
     <div className="p-10 max-w-xl mx-auto">
       <h1 className="text-xl font-bold mb-4">Edit Product</h1>
-
       <input
         name="name"
         value={product.name}
@@ -106,7 +112,6 @@ const EditProduct = () => {
         className="border p-2 w-full mb-2"
         placeholder="Name"
       />
-
       <input
         name="price"
         value={product.price}
@@ -114,7 +119,6 @@ const EditProduct = () => {
         className="border p-2 w-full mb-2"
         placeholder="Price"
       />
-
       <input
         name="brand"
         value={product.brand}
@@ -122,7 +126,6 @@ const EditProduct = () => {
         className="border p-2 w-full mb-2"
         placeholder="Brand"
       />
-
       <textarea
         name="description"
         value={product.description}
@@ -130,7 +133,6 @@ const EditProduct = () => {
         className="border p-2 w-full mb-2"
         placeholder="Description"
       />
-
       <input
         name="stock"
         value={product.stock}
@@ -138,8 +140,7 @@ const EditProduct = () => {
         className="border p-2 w-full mb-4"
         placeholder="Stock"
       />
-
-      {/* current images */}
+   {/* current images */}
       <div className="flex flex-wrap gap-2 mb-4">
         {product.images?.map((img, index) => (
           <div key={index} className="relative">
@@ -158,8 +159,7 @@ const EditProduct = () => {
           </div>
         ))}
       </div>
-
-      {/*add new images*/}
+      {/* add new images */}
       <input
         type="file"
         multiple
@@ -167,7 +167,6 @@ const EditProduct = () => {
         onChange={handleImageChange}
         className="border p-2 w-full mb-4"
       />
-
       <button
         onClick={handleUpdate}
         className="bg-green-600 text-white px-4 py-2 rounded"
