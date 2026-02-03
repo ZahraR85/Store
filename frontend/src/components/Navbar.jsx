@@ -266,6 +266,9 @@ const Navbar = () => {
                 <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
                   <Link to="/admin">Admin Panel</Link>
                 </li>
+                <li className="hover:underline hover:bg-BgKhaki p-2 rounded-md">
+                  <Link to="/admin/products">Admin Products</Link>
+                </li>
               </ul>
             </div>
           </div>

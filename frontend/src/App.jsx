@@ -5,6 +5,8 @@ import Register from "./Auth/Register.jsx";
 import Homepage from "./pages/HomePage.jsx";
 //import AdminRoute from "./pages/AdminRoute.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import EditProduct from "./pages/EditProduct.jsx";
+import AdminProducts from "./pages/AdminProducts.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 import ProductDetails from "./pages/ProductDetails";
 import FavoritesPage from "./pages/FavoritesPage.jsx";
@@ -28,6 +30,8 @@ function App() {
         <Route path="/ShoppingCart" element={<ShoppingCart />} />
         {/* Admin Routes (commented out for now) */}
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/products" element={<AdminProducts />} />
+        <Route path="/admin/products/edit/:id" element={<EditProduct />} />
       </Routes>
     </Layout>
   );
