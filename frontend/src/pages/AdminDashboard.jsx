@@ -6,6 +6,8 @@ const AdminDashboard = () => {
   const { userId, role } = useAppContext();
   const navigate = useNavigate();
 
+  const token = localStorage.getItem("token");
+
   const [categories, setCategories] = useState([]);
   const [categoryName, setCategoryName] = useState("");
   const [genderForCategory, setGenderForCategory] = useState("women");
@@ -43,7 +45,7 @@ const AdminDashboard = () => {
   const fetchCategoriesByGender = async (gender) => {
     try {
       const res = await fetch(
-        `http://localhost:3001/categories?gender=${gender}`
+        `http://localhost:3001/categories?gender=${gender}`,
       );
       const data = await res.json();
       setCategories(data);
@@ -57,7 +59,10 @@ const AdminDashboard = () => {
     try {
       const res = await fetch("http://localhost:3001/categories", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           name: categoryName,
           gender: genderForCategory,
@@ -68,9 +73,7 @@ const AdminDashboard = () => {
       if (res.ok) {
         setCategoryName("");
         setSubcategoriesInput("");
-        if (genderForCategory === productData.gender) {
-          fetchCategoriesByGender(genderForCategory);
-        }
+        fetchCategoriesByGender(genderForCategory);
       }
     } catch (error) {
       console.error("Error adding category:", error);
@@ -98,7 +101,7 @@ const AdminDashboard = () => {
       try {
         const response = await fetch(
           "https://api.cloudinary.com/v1_1/ddx3jbnt2/image/upload",
-          { method: "POST", body: formData }
+          { method: "POST", body: formData },
         );
         const data = await response.json();
         uploadedImages.push(data.secure_url);
@@ -116,25 +119,20 @@ const AdminDashboard = () => {
       !productData.name ||
       !productData.price
     ) {
-      alert("Please fill all required fields: Gender, Category, Name, Price");
+      alert("Gender, Category, Name, Price الزامی هستند");
       return;
     }
 
     const formData = new FormData();
 
-    // Append product info
-    formData.append("name", productData.name);
-    formData.append("description", productData.description);
-    formData.append("price", productData.price);
-    formData.append("category", productData.category);
-    formData.append("subcategory", productData.subcategory);
-    formData.append("brand", productData.brand);
-    formData.append("sizes", productData.sizes.join(","));
-    formData.append("colors", productData.colors.join(","));
-    formData.append("stock", productData.stock);
-    formData.append("gender", productData.gender);
+    Object.entries(productData).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        formData.append(key, value.join(","));
+      } else {
+        formData.append(key, value);
+      }
+    });
 
-    // Append images
     imageFiles.forEach((file) => {
       formData.append("images", file);
     });
@@ -142,7 +140,10 @@ const AdminDashboard = () => {
     try {
       const response = await fetch("http://localhost:3001/products", {
         method: "POST",
-        body: formData, // important: multipart/form-data
+        headers: {
+          Authorization: `Bearer ${token}`, // ⭐⭐⭐ مهم
+        },
+        body: formData,
       });
 
       if (response.ok) {
@@ -151,14 +152,13 @@ const AdminDashboard = () => {
           name: "",
           description: "",
           price: "",
-          images: [],
+          gender: "",
           category: "",
           subcategory: "",
           brand: "",
           sizes: [],
           colors: [],
           stock: "",
-          gender: "",
         });
         setImageFiles([]);
       } else {
@@ -169,7 +169,6 @@ const AdminDashboard = () => {
       console.error("Error adding product:", error);
     }
   };
-
   return (
     <div className="min-h-screen p-10 bg-gray-100">
       <div className="mx-auto max-w-[1200px] bg-white shadow-md rounded-lg p-6 space-y-6">
