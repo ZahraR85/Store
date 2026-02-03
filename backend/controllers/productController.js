@@ -75,46 +75,45 @@ export const updateProduct = async (req, res) => {
   try {
     const {
       name,
-      gender,
       description,
       price,
-      sizes,
-      colors,
-      category,
-      subcategory,
       brand,
       stock,
+      sizes,
+      colors,
+      subcategory,
+      existingImages,
     } = req.body;
 
-    const images = req.files?.map((file) => file.path); // Replace images if new files uploaded
+    const updateData = { name, description, price, brand, stock, subcategory };
 
-    const updateData = {
-      name,
-      gender,
-      description,
-      price,
-      category,
-      subcategory,
-      brand,
-      sizes,
-      colors,
-      stock,
-    };
+    if (sizes) updateData.sizes = sizes.split(",").map(s => s.trim());
+    if (colors) updateData.colors = colors.split(",").map(c => c.trim());
 
-    if (images && images.length > 0) updateData.images = images;
+    const newImages = req.cloudinaryURLs || [];
 
-    const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-    });
+    // Combine old + new images, or skip if both empty
+    let finalImages = [];
+    if (existingImages) {
+      finalImages = Array.isArray(existingImages) ? existingImages : [existingImages];
+    }
+    if (newImages.length > 0) {
+      finalImages = [...finalImages, ...newImages];
+    }
+
+    if (finalImages.length > 0) updateData.images = finalImages;
+
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     res.json(product);
   } catch (error) {
     console.error("Update Product Error:", error);
-    res.status(500).json({ error: "Failed to update product" });
+    res.status(500).json({ error: "Failed to update product", details: error.message });
   }
 };
+
 
 // Delete product
 export const deleteProduct = async (req, res) => {
