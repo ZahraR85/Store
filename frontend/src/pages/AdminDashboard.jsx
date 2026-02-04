@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const AdminDashboard = () => {
   const { userId, role } = useAppContext();
   const navigate = useNavigate();
-
   const token = localStorage.getItem("token");
 
   const [categories, setCategories] = useState([]);
@@ -17,7 +17,6 @@ const AdminDashboard = () => {
     name: "",
     description: "",
     price: "",
-    images: [],
     gender: "",
     category: "",
     subcategory: "",
@@ -28,18 +27,15 @@ const AdminDashboard = () => {
   });
 
   const [imageFiles, setImageFiles] = useState([]);
+  const [loadingCategory, setLoadingCategory] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(false);
 
   useEffect(() => {
-    if (!userId || role !== "admin") {
-      navigate("/");
-    }
-  }, [userId, role, navigate]);
+    if (!userId || role !== "admin") navigate("/");
+  }, [userId, role]);
 
-  // Fetch categories when gender is selected
   useEffect(() => {
-    if (productData.gender) {
-      fetchCategoriesByGender(productData.gender);
-    }
+    if (productData.gender) fetchCategoriesByGender(productData.gender);
   }, [productData.gender]);
 
   const fetchCategoriesByGender = async (gender) => {
@@ -47,15 +43,20 @@ const AdminDashboard = () => {
       const res = await fetch(
         `http://localhost:3001/categories?gender=${gender}`,
       );
-      const data = await res.json();
-      setCategories(data);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
+      setCategories(await res.json());
+    } catch {
+      toast.error("Error while fetching categories");
     }
   };
 
-  // Add new category
+  // ➕ Add Category
   const handleAddCategory = async () => {
+    if (!categoryName.trim()) {
+      toast.error("Category name is required");
+      return;
+    }
+
+    setLoadingCategory(true);
     try {
       const res = await fetch("http://localhost:3001/categories", {
         method: "POST",
@@ -70,16 +71,18 @@ const AdminDashboard = () => {
         }),
       });
 
-      if (res.ok) {
-        setCategoryName("");
-        setSubcategoriesInput("");
-        fetchCategoriesByGender(genderForCategory);
-      }
-    } catch (error) {
-      console.error("Error adding category:", error);
+      if (!res.ok) throw new Error();
+
+      toast.success("Category added successfully ✅");
+      setCategoryName("");
+      setSubcategoriesInput("");
+      fetchCategoriesByGender(genderForCategory);
+    } catch {
+      toast.error("Error adding category");
+    } finally {
+      setLoadingCategory(false);
     }
   };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProductData((prev) => ({ ...prev, [name]: value }));
@@ -112,6 +115,7 @@ const AdminDashboard = () => {
 
     return uploadedImages;
   };
+  // ➕ Add Product
   const handleAddProduct = async () => {
     if (
       !productData.gender ||
@@ -119,10 +123,16 @@ const AdminDashboard = () => {
       !productData.name ||
       !productData.price
     ) {
-      alert("Gender, Category, Name, Price الزامی هستند");
+      toast.error("Gender, Category, Name, and Price are required");
       return;
     }
 
+    if (imageFiles.length === 0) {
+      toast.error("At least one image is required");
+      return;
+    }
+
+    setLoadingProduct(true);
     const formData = new FormData();
 
     Object.entries(productData).forEach(([key, value]) => {
@@ -133,79 +143,75 @@ const AdminDashboard = () => {
       }
     });
 
-    imageFiles.forEach((file) => {
-      formData.append("images", file);
-    });
+    imageFiles.forEach((file) => formData.append("images", file));
 
     try {
-      const response = await fetch("http://localhost:3001/products", {
+      const res = await fetch("http://localhost:3001/products", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // ⭐⭐⭐ مهم
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
-      if (response.ok) {
-        alert("Product added successfully!");
-        setProductData({
-          name: "",
-          description: "",
-          price: "",
-          gender: "",
-          category: "",
-          subcategory: "",
-          brand: "",
-          sizes: [],
-          colors: [],
-          stock: "",
-        });
-        setImageFiles([]);
-      } else {
-        const err = await response.json();
-        console.error("Failed to add product:", err);
-      }
-    } catch (error) {
-      console.error("Error adding product:", error);
+      if (!res.ok) throw new Error();
+
+      toast.success("Product added successfully ");
+      setProductData({
+        name: "",
+        description: "",
+        price: "",
+        gender: "",
+        category: "",
+        subcategory: "",
+        brand: "",
+        sizes: [],
+        colors: [],
+        stock: "",
+      });
+      setImageFiles([]);
+    } catch {
+      toast.error("Error adding product");
+    } finally {
+      setLoadingProduct(false);
     }
   };
+
   return (
     <div className="min-h-screen p-10 bg-gray-100">
-      <div className="mx-auto max-w-[1200px] bg-white shadow-md rounded-lg p-6 space-y-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-
+      <div className="max-w-[1200px] mx-auto bg-white p-6 rounded shadow space-y-6">
         {/* Add Category */}
         <div className="border p-4 rounded space-y-3">
           <h2 className="text-xl font-semibold">Add Category</h2>
+
           <select
             value={genderForCategory}
             onChange={(e) => setGenderForCategory(e.target.value)}
-            className="border p-2 rounded w-full"
+            className="border p-2 w-full"
           >
             <option value="women">Women</option>
             <option value="men">Men</option>
             <option value="kids">Kids</option>
             <option value="home">Home</option>
           </select>
+
           <input
-            type="text"
-            placeholder="Category Name"
             value={categoryName}
             onChange={(e) => setCategoryName(e.target.value)}
-            className="border p-2 rounded w-full"
+            placeholder="Category name"
+            className="border p-2 w-full"
           />
           <input
-            type="text"
-            placeholder="Subcategories (comma separated)"
             value={subcategoriesInput}
             onChange={(e) => setSubcategoriesInput(e.target.value)}
-            className="border p-2 rounded w-full"
+            placeholder="Subcategories ( , )"
+            className="border p-2 w-full"
           />
+
           <button
             onClick={handleAddCategory}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            disabled={loadingCategory}
+            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
           >
-            Add Category
+            {loadingCategory ? "Adding..." : "Add Category"}
           </button>
         </div>
 
@@ -363,12 +369,12 @@ const AdminDashboard = () => {
               </div>
             ))}
           </div>
-
           <button
             onClick={handleAddProduct}
-            className="bg-green-500 text-white px-4 py-2 rounded mt-2"
+            disabled={loadingProduct}
+            className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
           >
-            Add Product
+            {loadingProduct ? "Saving..." : "Add Product"}
           </button>
         </div>
       </div>
