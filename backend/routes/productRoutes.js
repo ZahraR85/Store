@@ -1,5 +1,7 @@
 import express from "express";
 import Product from "../models/Product.js";
+import cloudinary from "../middleware/cloudinary.js";
+
 import {
   createProduct,
   getAllProducts,
@@ -80,17 +82,21 @@ router.delete("/:id", deleteProduct);
 // DELETE /products/:id/image
 router.delete("/:id/image", verifyToken, adminOnly, async (req, res) => {
   try {
-    const { imageUrl } = req.body; // URL of the image to delete
+    const { imageUrl } = req.body;
+
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: "Product not found" });
 
-    // Remove image from product.images
     product.images = product.images.filter(img => img !== imageUrl);
     await product.save();
 
-    // delete from Cloudinary
-    //const publicId = imageUrl.split("/").pop().split(".")[0];
-    //await cloudinary.uploader.destroy(publicId);
+    const publicId = imageUrl
+      .split("/")
+      .slice(-2)
+      .join("/")
+      .split(".")[0];
+
+    await cloudinary.uploader.destroy(publicId);
 
     res.json({ message: "Image deleted" });
   } catch (error) {

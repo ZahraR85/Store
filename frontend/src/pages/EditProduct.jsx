@@ -9,14 +9,7 @@ const EditProduct = () => {
 
   const token = localStorage.getItem("token");
 
-  const [product, setProduct] = useState({
-    name: "",
-    price: "",
-    description: "",
-    brand: "",
-    stock: "",
-    images: [],
-  });
+  const [product, setProduct] = useState(null);
 
   const [newImages, setNewImages] = useState([]);
 
@@ -116,6 +109,9 @@ const EditProduct = () => {
       alert("Server error while updating product");
     }
   };
+  if (!product) {
+    return <div className="p-10">Loading...</div>;
+  }
 
   return (
     <div className="p-10 max-w-xl mx-auto">
