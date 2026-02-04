@@ -46,11 +46,26 @@ const EditProduct = () => {
     setNewImages([...newImages, ...Array.from(e.target.files)]);
   };
 
-  const removeOldImage = (index) => {
-    setProduct({
-      ...product,
-      images: product.images.filter((_, i) => i !== index),
-    });
+  const removeOldImage = async (imgUrl) => {
+    try {
+      //  delete from state
+      setProduct((prev) => ({
+        ...prev,
+        images: prev.images.filter((img) => img !== imgUrl),
+      }));
+
+      // Delete from Cloudinary
+      await fetch(`http://localhost:3001/products/${id}/image`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ imageUrl: imgUrl }),
+      });
+    } catch (error) {
+      console.error("Failed to delete image:", error);
+    }
   };
 
   const handleUpdate = async () => {
@@ -140,7 +155,7 @@ const EditProduct = () => {
         className="border p-2 w-full mb-4"
         placeholder="Stock"
       />
-   {/* current images */}
+      {/* current images */}
       <div className="flex flex-wrap gap-2 mb-4">
         {product.images?.map((img, index) => (
           <div key={index} className="relative">
@@ -151,7 +166,7 @@ const EditProduct = () => {
             />
             <button
               type="button"
-              onClick={() => removeOldImage(index)}
+              onClick={() => removeOldImage(img)}
               className="absolute top-0 right-0 bg-red-600 text-white w-5 h-5 rounded-full"
             >
               ×
