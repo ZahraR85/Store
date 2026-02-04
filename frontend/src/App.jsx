@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import Layout from "./pages/Layout";
 import SignIn from "./Auth/SignIn.jsx";
 import Register from "./Auth/Register.jsx";
@@ -14,6 +15,7 @@ import ShoppingCart from "./pages/ShoppingCart.jsx";
 function App() {
   return (
     <Layout>
+      <Toaster position="top-right" />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Homepage />} />
