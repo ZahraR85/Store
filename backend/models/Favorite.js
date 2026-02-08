@@ -5,6 +5,6 @@ const favoriteSchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
 }, { timestamps: true });
 
-favoriteSchema.index({ user: 1, product: 1 }, { unique: true }); // جلوگیری از تکرار
+favoriteSchema.index({ user: 1, product: 1 }, { unique: true });
 
 export default mongoose.model("Favorite", favoriteSchema);
