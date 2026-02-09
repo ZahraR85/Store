@@ -161,6 +161,8 @@ const Navbar = () => {
         setMobileGender={setMobileGender}
         mobileCategory={mobileCategory}
         setMobileCategory={setMobileCategory}
+        isAuthenticated={isAuthenticated}
+        role={role}
       />
     </nav>
   );
