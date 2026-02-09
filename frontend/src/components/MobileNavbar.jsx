@@ -1,8 +1,21 @@
-{
-  /* ================= MOBILE MENU ================= */
-}
-{
-  menuOpen && (
+import { Link } from "react-router-dom";
+import { FaBars } from "react-icons/fa";
+
+const MobileNavbar = ({
+  menuOpen,
+  setMenuOpen,
+  genders,
+  categories,
+  mobileGender,
+  setMobileGender,
+  mobileCategory,
+  setMobileCategory,
+  isAuthenticated,
+  role,
+}) => {
+  if (!menuOpen) return null;
+
+  return (
     <div className="fixed inset-0 z-50 flex">
       <div className="w-[80%] max-w-sm bg-white h-full p-4 overflow-y-auto">
         <div className="flex items-center gap-3 mb-4">
@@ -25,11 +38,10 @@
             {genders.map((g) => (
               <li
                 key={g}
-                className="flex justify-between py-2"
+                className="flex justify-between py-2 cursor-pointer"
                 onClick={() => setMobileGender(g)}
               >
-                {g}
-                <span>›</span>
+                {g} <span>›</span>
               </li>
             ))}
           </ul>
@@ -42,11 +54,10 @@
               .map((cat) => (
                 <li
                   key={cat._id}
-                  className="flex justify-between py-2"
+                  className="flex justify-between py-2 cursor-pointer"
                   onClick={() => setMobileCategory(cat)}
                 >
-                  {cat.name}
-                  <span>›</span>
+                  {cat.name} <span>›</span>
                 </li>
               ))}
           </ul>
@@ -57,9 +68,7 @@
             {mobileCategory.subcategories.map((sub, i) => (
               <li key={i}>
                 <Link
-                  to={`/products/${mobileGender}/${mobileCategory._id}/${encodeURIComponent(
-                    sub.toLowerCase(),
-                  )}`}
+                  to={`/products/${mobileGender}/${mobileCategory._id}/${encodeURIComponent(sub.toLowerCase())}`}
                   onClick={() => {
                     setMenuOpen(false);
                     setMobileGender(null);
@@ -73,22 +82,14 @@
           </ul>
         )}
 
-        {/* ADMIN PANEL MOBILE */}
+        {/* ADMIN */}
         {isAuthenticated && role === "admin" && (
           <div className="border-t mt-4 p-4">
             <h4 className="font-semibold mb-2">Admin</h4>
-            <Link
-              to="/admin"
-              className="block py-1"
-              onClick={() => setMenuOpen(false)}
-            >
+            <Link to="/admin" className="block py-1">
               Dashboard
             </Link>
-            <Link
-              to="/admin/products"
-              className="block py-1"
-              onClick={() => setMenuOpen(false)}
-            >
+            <Link to="/admin/products" className="block py-1">
               Products
             </Link>
           </div>
@@ -105,4 +106,6 @@
       />
     </div>
   );
-}
+};
+
+export default MobileNavbar;
