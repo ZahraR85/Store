@@ -156,17 +156,29 @@ const ProductDetails = () => {
             </div>
           </div>
         )}
-
         {/* Quantity */}
         <div className="mt-6">
           <h3 className="font-semibold mb-2">Quantity</h3>
-          <input
-            type="number"
-            min={1}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, +e.target.value))}
-            className="border w-24 px-2 py-1 rounded"
-          />
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+              className="px-3 py-1 border rounded hover:bg-gray-100"
+            >
+              -
+            </button>
+
+            <span className="w-12 text-center border rounded py-1">
+              {quantity}
+            </span>
+
+            <button
+              onClick={() => setQuantity((prev) => prev + 1)}
+              className="px-3 py-1 border rounded"
+            >
+              +
+            </button>
+          </div>
         </div>
 
         {/* Add to Cart */}

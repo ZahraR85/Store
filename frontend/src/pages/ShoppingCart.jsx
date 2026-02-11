@@ -100,7 +100,7 @@ const ShoppingCart = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleQuantityChange(item._id, quantity - 1)}
-                  className="px-3 py-1 border rounded"
+                  className="px-3 py-1 border rounded hover:bg-gray-100"
                 >
                   -
                 </button>
