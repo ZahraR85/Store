@@ -2,7 +2,7 @@ import Cart from "../models/Cart.js";
 
 // ------------------ ADD ITEM TO CART ------------------
 export const addToCart = async (req, res) => {
-  const { productId, size, color } = req.body;
+  const { productId, size, color, quantity } = req.body; // accept quantity from frontend
   const userId = req.user.id;
 
   try {
@@ -20,20 +20,19 @@ export const addToCart = async (req, res) => {
     );
 
     if (existingItem) {
-      existingItem.quantity += 1;
+      existingItem.quantity += quantity || 1; // add requested quantity
     } else {
       cart.items.push({
         product: productId,
         size: size || null,
         color: color || null,
-        quantity: 1,
+        quantity: quantity || 1,
       });
     }
 
     cart.updatedAt = Date.now();
     await cart.save();
 
-    // populate product details before sending
     const populatedCart = await cart.populate("items.product");
     res.json(populatedCart);
   } catch (error) {
@@ -92,7 +91,7 @@ export const updateCartItem = async (req, res) => {
     const item = cart.items.id(req.params.itemId);
     if (!item) return res.status(404).json({ message: "Item not found" });
 
-    item.quantity = quantity;
+    item.quantity = quantity; // update quantity from frontend
     cart.updatedAt = Date.now();
 
     await cart.save();

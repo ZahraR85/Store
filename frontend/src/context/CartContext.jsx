@@ -35,14 +35,19 @@ export const CartProvider = ({ children }) => {
     }
   }, [token]);
 
-  //counter of cart items
+  // counter of cart items (SUM OF QUANTITIES)
   useEffect(() => {
-    const count = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const count = cartItems.reduce(
+      (sum, item) => sum + (item.quantity || 1),
+      0,
+    );
     setCartCount(count);
   }, [cartItems]);
 
-  // ADD TO CART
-  const addToCart = async (product, size, color) => {
+  // ===============================
+  // ADD TO CART (WITH QUANTITY)
+  // ===============================
+  const addToCart = async (product, size, color, quantity = 1) => {
     if (!token) {
       alert("You must be logged in");
       return;
@@ -59,6 +64,7 @@ export const CartProvider = ({ children }) => {
           productId: product._id,
           size: size || null,
           color: color || null,
+          quantity: quantity || 1,
         }),
       });
 
@@ -69,7 +75,35 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // ===============================
+  // UPDATE QUANTITY
+  // ===============================
+  const updateQuantity = async (cartItemId, quantity) => {
+    if (!token) return alert("You must be logged in");
+
+    try {
+      const res = await fetch(
+        `http://localhost:3001/cart/update/${cartItemId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ quantity }),
+        },
+      );
+
+      const data = await res.json();
+      setCartItems(data.items || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ===============================
   // REMOVE FROM CART
+  // ===============================
   const removeFromCart = async (cartItemId) => {
     if (!token) return alert("You must be logged in");
 
@@ -91,7 +125,13 @@ export const CartProvider = ({ children }) => {
 
   return (
     <CartContext.Provider
-      value={{ cartItems, cartCount, addToCart, removeFromCart }}
+      value={{
+        cartItems,
+        cartCount,
+        addToCart,
+        removeFromCart,
+        updateQuantity, // ✅ added
+      }}
     >
       {children}
     </CartContext.Provider>
