@@ -26,7 +26,13 @@ const EditProduct = () => {
     try {
       const res = await fetch(`http://localhost:3001/products/${id}`);
       const data = await res.json();
-      setProduct(data);
+
+      // Convert arrays to comma separated string for input fields
+      setProduct({
+        ...data,
+        sizes: data.sizes?.join(", ") || "",
+        colors: data.colors?.join(", ") || "",
+      });
     } catch (err) {
       toast.error("Failed to load product");
       console.error(err);
@@ -95,7 +101,20 @@ const EditProduct = () => {
     formData.append("description", product.description);
     formData.append("brand", product.brand);
     formData.append("stock", product.stock);
+    formData.append("sizes", product.sizes);
+    // Normalize colors before sending
+    const normalizedColors = product.colors
+      .split(",")
+      .map((color) => color.trim())
+      .map((color) =>
+        color
+          .toLowerCase()
+          .replace(/\s+/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase()),
+      )
+      .join(", ");
 
+    formData.append("colors", normalizedColors);
     product.images.forEach((img) => {
       formData.append("existingImages", img);
     });
@@ -167,7 +186,21 @@ const EditProduct = () => {
         className="border p-2 w-full mb-2"
         placeholder="Description"
       />
+      <input
+        name="sizes"
+        value={product.sizes}
+        onChange={handleChange}
+        className="border p-2 w-full mb-2"
+        placeholder="Sizes (e.g. S, M, L, XL)"
+      />
 
+      <input
+        name="colors"
+        value={product.colors}
+        onChange={handleChange}
+        className="border p-2 w-full mb-2"
+        placeholder="Colors (e.g. Red, Light Blue, Black)"
+      />
       <input
         name="stock"
         value={product.stock}
