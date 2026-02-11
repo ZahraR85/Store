@@ -5,10 +5,10 @@ import { useState, useEffect } from "react";
 const ShoppingCart = () => {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
 
-  // Local state to handle quantity separately per item
+  // Local quantity state (per cart item)
   const [quantities, setQuantities] = useState({});
 
-  // Initialize quantities when cart changes
+  // Sync local quantities when cartItems change
   useEffect(() => {
     const initialQuantities = {};
     cartItems.forEach((item) => {
@@ -17,19 +17,18 @@ const ShoppingCart = () => {
     setQuantities(initialQuantities);
   }, [cartItems]);
 
-  // Handle quantity change for ONE product only
-  const handleQuantityChange = (id, value) => {
-    const newQuantity = Math.max(1, Number(value));
+  // Handle quantity change
+  const handleQuantityChange = (itemId, newValue) => {
+    const newQuantity = Math.max(1, Number(newValue));
 
+    // Update local state immediately (UI feels fast)
     setQuantities((prev) => ({
       ...prev,
-      [id]: newQuantity,
+      [itemId]: newQuantity,
     }));
 
-    // If you have backend update function
-    if (updateQuantity) {
-      updateQuantity(id, newQuantity);
-    }
+    // Update backend
+    updateQuantity(itemId, newQuantity);
   };
 
   // Calculate total price
@@ -40,7 +39,9 @@ const ShoppingCart = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      {cartItems.length === 0 && <p className="text-lg">Your cart is empty.</p>}
+      {cartItems.length === 0 && (
+        <p className="text-lg text-center">Your cart is empty.</p>
+      )}
 
       {cartItems.map((item) => {
         const quantity = quantities[item._id] || 1;
@@ -54,14 +55,17 @@ const ShoppingCart = () => {
               className="flex items-center gap-4 flex-1"
             >
               <img
-                src={item.product.images[0]}
+                src={item.product.images?.[0]}
                 alt={item.product.name}
                 className="w-24 h-24 object-contain"
               />
 
               <div>
                 <p className="font-semibold text-lg">{item.product.name}</p>
-                <p className="text-gray-500">€{item.product.price}</p>
+
+                <p className="text-gray-500">
+                  €{item.product.price.toFixed(2)}
+                </p>
 
                 {/* Size */}
                 {item.size && (
@@ -123,7 +127,7 @@ const ShoppingCart = () => {
               <p className="text-sm font-semibold">€{subtotal.toFixed(2)}</p>
             </div>
 
-            {/* Remove */}
+            {/* Remove Button */}
             <button
               onClick={() => removeFromCart(item._id)}
               className="text-red-500 hover:underline"

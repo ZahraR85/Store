@@ -8,17 +8,14 @@ export const CartProvider = ({ children }) => {
 
   const token = localStorage.getItem("token");
 
-  // fetchCart outside of useEffect
+  // Fetch cart
   const fetchCart = async () => {
     if (!token) return;
 
     try {
       const res = await fetch("http://localhost:3001/cart", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       const data = await res.json();
       setCartItems(data.items || []);
     } catch (err) {
@@ -26,16 +23,12 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // when token is changed (login/logout)
   useEffect(() => {
-    if (token) {
-      fetchCart();
-    } else {
-      setCartItems([]); // logout → cart empty
-    }
+    if (token) fetchCart();
+    else setCartItems([]);
   }, [token]);
 
-  // counter of cart items (SUM OF QUANTITIES)
+  // Count items
   useEffect(() => {
     const count = cartItems.reduce(
       (sum, item) => sum + (item.quantity || 1),
@@ -44,14 +37,9 @@ export const CartProvider = ({ children }) => {
     setCartCount(count);
   }, [cartItems]);
 
-  // ===============================
-  // ADD TO CART (WITH QUANTITY)
-  // ===============================
+  // Add to cart
   const addToCart = async (product, size, color, quantity = 1) => {
-    if (!token) {
-      alert("You must be logged in");
-      return;
-    }
+    if (!token) return alert("You must be logged in");
 
     try {
       const res = await fetch("http://localhost:3001/cart/add", {
@@ -64,10 +52,9 @@ export const CartProvider = ({ children }) => {
           productId: product._id,
           size: size || null,
           color: color || null,
-          quantity: quantity || 1,
+          quantity,
         }),
       });
-
       const data = await res.json();
       setCartItems(data.items || []);
     } catch (err) {
@@ -75,11 +62,12 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // ===============================
-  // UPDATE QUANTITY
-  // ===============================
+  // Update quantity for a specific cart item
   const updateQuantity = async (cartItemId, quantity) => {
-    if (!token) return alert("You must be logged in");
+    if (!token) {
+      alert("You must be logged in");
+      return;
+    }
 
     try {
       const res = await fetch(
@@ -94,16 +82,19 @@ export const CartProvider = ({ children }) => {
         },
       );
 
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Server error:", text);
+        return;
+      }
+
       const data = await res.json();
       setCartItems(data.items || []);
     } catch (err) {
-      console.error(err);
+      console.error("Update failed:", err);
     }
   };
-
-  // ===============================
-  // REMOVE FROM CART
-  // ===============================
+  // Remove from cart
   const removeFromCart = async (cartItemId) => {
     if (!token) return alert("You must be logged in");
 
@@ -115,7 +106,6 @@ export const CartProvider = ({ children }) => {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-
       const data = await res.json();
       setCartItems(data.items || []);
     } catch (err) {
@@ -130,7 +120,7 @@ export const CartProvider = ({ children }) => {
         cartCount,
         addToCart,
         removeFromCart,
-        updateQuantity, // ✅ added
+        updateQuantity,
       }}
     >
       {children}
