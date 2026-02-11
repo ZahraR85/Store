@@ -51,7 +51,7 @@ const ShoppingCart = () => {
           <div key={item._id} className="flex items-center gap-6 border-b py-6">
             {/* Product Info */}
             <Link
-              to={`/products/${item.product._id}`}
+              to={`/product/${item.product._id}`}
               className="flex items-center gap-4 flex-1"
             >
               <img
