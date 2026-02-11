@@ -1,41 +1,147 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { useState, useEffect } from "react";
 
 const ShoppingCart = () => {
-  const { cartItems, removeFromCart } = useCart();
+  const { cartItems, removeFromCart, updateQuantity } = useCart();
+
+  // Local state to handle quantity separately per item
+  const [quantities, setQuantities] = useState({});
+
+  // Initialize quantities when cart changes
+  useEffect(() => {
+    const initialQuantities = {};
+    cartItems.forEach((item) => {
+      initialQuantities[item._id] = item.quantity || 1;
+    });
+    setQuantities(initialQuantities);
+  }, [cartItems]);
+
+  // Handle quantity change for ONE product only
+  const handleQuantityChange = (id, value) => {
+    const newQuantity = Math.max(1, Number(value));
+
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: newQuantity,
+    }));
+
+    // If you have backend update function
+    if (updateQuantity) {
+      updateQuantity(id, newQuantity);
+    }
+  };
+
+  // Calculate total price
+  const totalPrice = cartItems.reduce((total, item) => {
+    const quantity = quantities[item._id] || 1;
+    return total + item.product.price * quantity;
+  }, 0);
 
   return (
-    <div className="p-6">
-      {cartItems.length === 0 && <p>Your cart is empty.</p>}
+    <div className="p-6 max-w-4xl mx-auto">
+      {cartItems.length === 0 && <p className="text-lg">Your cart is empty.</p>}
 
-      {cartItems.map((item) => (
-        <div key={item._id} className="flex items-center gap-4 border-b py-4">
-          {/* Clicking image or name goes to ProductDetails page */}
-          <Link
-            to={`/product/${item.product._id}`}
-            className="flex items-center gap-4"
-          >
-            <img
-              src={item.product.images[0]}
-              alt={item.product.name}
-              className="w-24 h-24 object-contain"
-            />
-            <div>
-              <p className="font-semibold">{item.product.name}</p>
-              <p className="text-gray-500">€{item.product.price}</p>
+      {cartItems.map((item) => {
+        const quantity = quantities[item._id] || 1;
+        const subtotal = item.product.price * quantity;
+
+        return (
+          <div key={item._id} className="flex items-center gap-6 border-b py-6">
+            {/* Product Info */}
+            <Link
+              to={`/products/${item.product._id}`}
+              className="flex items-center gap-4 flex-1"
+            >
+              <img
+                src={item.product.images[0]}
+                alt={item.product.name}
+                className="w-24 h-24 object-contain"
+              />
+
+              <div>
+                <p className="font-semibold text-lg">{item.product.name}</p>
+                <p className="text-gray-500">€{item.product.price}</p>
+
+                {/* Size */}
+                {item.size && (
+                  <p className="text-sm text-gray-600">
+                    Size: <span className="font-medium">{item.size}</span>
+                  </p>
+                )}
+
+                {/* Color */}
+                {item.color && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span>Color:</span>
+
+                    <span
+                      className="w-4 h-4 rounded-full border"
+                      style={{
+                        backgroundColor: item.color
+                          .toLowerCase()
+                          .replace(/\s+/g, ""),
+                      }}
+                      title={item.color}
+                    />
+
+                    <span className="font-medium">{item.color}</span>
+                  </div>
+                )}
+              </div>
+            </Link>
+
+            {/* Quantity Controls */}
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleQuantityChange(item._id, quantity - 1)}
+                  className="px-3 py-1 border rounded"
+                >
+                  -
+                </button>
+
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) =>
+                    handleQuantityChange(item._id, e.target.value)
+                  }
+                  className="w-16 text-center border rounded py-1"
+                />
+
+                <button
+                  onClick={() => handleQuantityChange(item._id, quantity + 1)}
+                  className="px-3 py-1 border rounded"
+                >
+                  +
+                </button>
+              </div>
+
+              {/* Subtotal */}
+              <p className="text-sm font-semibold">€{subtotal.toFixed(2)}</p>
             </div>
-          </Link>
 
-          <div className="ml-auto flex items-center gap-2">
+            {/* Remove */}
             <button
               onClick={() => removeFromCart(item._id)}
-              className="text-red-500"
+              className="text-red-500 hover:underline"
             >
               Remove
             </button>
           </div>
+        );
+      })}
+
+      {/* Total Section */}
+      {cartItems.length > 0 && (
+        <div className="mt-8 flex justify-between items-center border-t pt-6">
+          <h2 className="text-xl font-bold">Total:</h2>
+
+          <p className="text-2xl font-bold">€{totalPrice.toFixed(2)}</p>
         </div>
-      ))}
+      )}
     </div>
   );
 };

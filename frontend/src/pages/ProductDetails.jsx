@@ -153,20 +153,25 @@ const ProductDetails = () => {
         {product.colors?.length > 0 && (
           <div className="mt-6">
             <h3 className="font-semibold mb-2">Color</h3>
-            <div className="flex gap-3">
-              {product.colors.map((color) => (
-                <span
-                  key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-8 h-8 rounded-full border cursor-pointer
-                    ${selectedColor === color ? "ring-2 ring-black" : ""}`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
+            <div className="flex gap-3 flex-wrap">
+              {product.colors.map((color) => {
+                // Normalize color string for CSS (fix Light Blue, Dark Red, etc.)
+                const normalizedColor = color.toLowerCase().replace(/\s+/g, "");
+
+                return (
+                  <span
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-8 h-8 rounded-full border cursor-pointer
+                      ${selectedColor === color ? "ring-2 ring-black" : ""}`}
+                    style={{ backgroundColor: normalizedColor }}
+                    title={color}
+                  />
+                );
+              })}
             </div>
           </div>
         )}
-
         {/* Add to Cart */}
         <button
           disabled={!canAddToCart || isAdding}

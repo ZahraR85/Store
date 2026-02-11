@@ -90,15 +90,24 @@ const ProductPage = () => {
               <p className="text-gray-900 font-bold">€{p.price}</p>
 
               {/* Colors */}
+              {/* Colors */}
               {p.colors?.length > 0 && (
                 <div className="flex gap-2 mt-2">
-                  {p.colors.map((color) => (
-                    <span
-                      key={color}
-                      className="w-3 h-3 rounded-full border"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
+                  {p.colors.map((color) => {
+                    // Normalize color string (Light Blue → lightblue)
+                    const normalizedColor = color
+                      .toLowerCase()
+                      .replace(/\s+/g, "");
+
+                    return (
+                      <span
+                        key={color}
+                        className="w-3 h-3 rounded-full border"
+                        style={{ backgroundColor: normalizedColor }}
+                        title={color}
+                      />
+                    );
+                  })}
                 </div>
               )}
             </div>
