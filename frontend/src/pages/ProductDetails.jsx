@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
+import toast from "react-hot-toast";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -35,7 +36,7 @@ const ProductDetails = () => {
 
   if (!product) return <p className="p-6">Loading...</p>;
 
-//Image pagination
+  //Image pagination
   const nextImage = () => {
     if (currentIndex < product.images.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -48,7 +49,7 @@ const ProductDetails = () => {
       setActiveImage(product.images[currentIndex - 1]);
     }
   };
-//Selection rules 
+  //Selection rules
   const sizeRequired = product.sizes?.length > 1;
   const colorRequired = product.colors?.length > 1;
   const canAddToCart =
@@ -63,7 +64,7 @@ const ProductDetails = () => {
           alt={product.name}
           className="w-full h-[500px] object-contain border rounded"
         />
-//pagination controls
+        {/* pagination controls */}
         <div className="flex justify-between mt-4">
           <button
             onClick={prevImage}
@@ -83,7 +84,6 @@ const ProductDetails = () => {
             Next ▶
           </button>
         </div>
-
         <div className="flex gap-3 mt-4">
           {product.images.map((img, index) => (
             <img
@@ -137,7 +137,9 @@ const ProductDetails = () => {
             <h3 className="font-semibold mb-2">Color</h3>
             <div className="flex gap-3 flex-wrap">
               {product.colors.map((color) => {
-                 // Normalize color string for CSS (fix Light Blue, Dark Red, etc.)
+                {
+                  /* Normalize color string for CSS (fix Light Blue, Dark Red, etc.) */
+                }
                 const normalizedColor = color.toLowerCase().replace(/\s+/g, "");
                 return (
                   <span
@@ -171,13 +173,32 @@ const ProductDetails = () => {
         <button
           disabled={!canAddToCart || isAdding}
           onClick={async () => {
+            if (!canAddToCart) {
+              toast.error("Please select size and color");
+              return;
+            }
+
             setIsAdding(true);
-            await addToCart(product, selectedSize, selectedColor, quantity);
-            setTimeout(() => setIsAdding(false), 2000);
+
+            const success = await addToCart(
+              product,
+              selectedSize,
+              selectedColor,
+              quantity,
+            );
+
+            if (success) {
+              toast.success("Added to cart successfully 🛒");
+              setQuantity(1);
+            } else {
+              toast.error("Something went wrong");
+            }
+
+            setIsAdding(false);
           }}
           className="mt-8 bg-blue-500 text-white px-6 py-3 rounded disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {isAdding ? "Added ✓" : "Add to Cart"}
+          {isAdding ? "Adding..." : "Add to Cart"}
         </button>
       </div>
     </div>
