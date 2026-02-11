@@ -1,4 +1,3 @@
-// src/context/FavoritesContext.jsx
 import {
   createContext,
   useContext,
@@ -29,7 +28,6 @@ export const FavoritesProvider = ({ children }) => {
 
       if (!res.ok) {
         console.error("Failed to fetch favorites:", res.status);
-        // اگر توکن نامعتبره یا 401 شد، پیشنهادم اینه که در AppContext signOut کنین.
         return;
       }
 
