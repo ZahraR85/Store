@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useState, useEffect } from "react";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaTrash } from "react-icons/fa";
 import { useFavorites } from "../context/FavoritesContext";
 
 const ShoppingCart = () => {
@@ -97,7 +97,19 @@ const ShoppingCart = () => {
                 )}
               </div>
             </Link>
-
+            {/* Favorite Button */}
+            <button
+              onClick={() => toggleFavorite(item.product)}
+              className="text-xl"
+            >
+              <FaHeart
+                className={
+                  favorites.some((f) => f._id === item.product._id)
+                    ? "text-red-500"
+                    : "text-gray-300 hover:text-red-400"
+                }
+              />
+            </button>
             {/* Quantity Controls */}
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-3">
@@ -131,27 +143,12 @@ const ShoppingCart = () => {
             </div>
 
             <div className="flex flex-col items-end gap-3">
-              {/* Favorite Button */}
-              {/* Favorite Button */}
-              <button
-                onClick={() => toggleFavorite(item.product)}
-                className="text-xl"
-              >
-                <FaHeart
-                  className={
-                    favorites.some((f) => f._id === item.product._id)
-                      ? "text-red-500"
-                      : "text-gray-300 hover:text-red-400"
-                  }
-                />
-              </button>
-
               {/* Remove Button */}
               <button
                 onClick={() => removeFromCart(item._id)}
-                className="text-red-500 hover:underline"
+                className="text-black-500 hover:underline"
               >
-                Remove
+                <FaTrash className="inline ml-1" />
               </button>
             </div>
           </div>
