@@ -6,6 +6,7 @@ import {
   useCallback,
 } from "react";
 import { useAppContext } from "./AppContext";
+
 const FavoritesContext = createContext();
 
 export const FavoritesProvider = ({ children }) => {
@@ -57,7 +58,6 @@ export const FavoritesProvider = ({ children }) => {
         setFavorites([]);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, fetchFavorites]);
 
   useEffect(() => {
@@ -101,9 +101,12 @@ export const FavoritesProvider = ({ children }) => {
     }
   };
 
+  // ✅ ADD THIS
+  const favoriteCount = favorites.length;
+
   return (
     <FavoritesContext.Provider
-      value={{ favorites, toggleFavorite, fetchFavorites }}
+      value={{ favorites, toggleFavorite, fetchFavorites, favoriteCount }}
     >
       {children}
     </FavoritesContext.Provider>
