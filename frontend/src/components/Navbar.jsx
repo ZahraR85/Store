@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import { useCart } from "../context/CartContext";
+import { useFavorites } from "../context/FavoritesContext";
 import {
   FaHome,
   FaUser,
@@ -30,6 +31,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, role, signOut } = useAppContext();
   const { cartCount } = useCart();
+  const { favoriteCount } = useFavorites();
   const genders = ["women", "men", "kids", "home"];
 
   useEffect(() => {
@@ -85,7 +87,14 @@ const Navbar = () => {
             </button>
           </li>
           <li>
-            <Link to="/favorites">❤️</Link>
+            <Link to="/favorites" className="relative">
+              ❤️
+              {favoriteCount > 0 && (
+                <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs px-2 rounded-full">
+                  {favoriteCount}
+                </span>
+              )}
+            </Link>
           </li>
           <li>
             <Link to="/ShoppingCart" className="relative">

@@ -1,4 +1,3 @@
-// src/context/FavoritesContext.jsx
 import {
   createContext,
   useContext,
@@ -7,6 +6,7 @@ import {
   useCallback,
 } from "react";
 import { useAppContext } from "./AppContext";
+
 const FavoritesContext = createContext();
 
 export const FavoritesProvider = ({ children }) => {
@@ -29,7 +29,6 @@ export const FavoritesProvider = ({ children }) => {
 
       if (!res.ok) {
         console.error("Failed to fetch favorites:", res.status);
-        // اگر توکن نامعتبره یا 401 شد، پیشنهادم اینه که در AppContext signOut کنین.
         return;
       }
 
@@ -59,7 +58,6 @@ export const FavoritesProvider = ({ children }) => {
         setFavorites([]);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, fetchFavorites]);
 
   useEffect(() => {
@@ -103,9 +101,12 @@ export const FavoritesProvider = ({ children }) => {
     }
   };
 
+  // ✅ ADD THIS
+  const favoriteCount = favorites.length;
+
   return (
     <FavoritesContext.Provider
-      value={{ favorites, toggleFavorite, fetchFavorites }}
+      value={{ favorites, toggleFavorite, fetchFavorites, favoriteCount }}
     >
       {children}
     </FavoritesContext.Provider>

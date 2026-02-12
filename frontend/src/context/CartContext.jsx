@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 const CartContext = createContext();
 
@@ -8,7 +9,7 @@ export const CartProvider = ({ children }) => {
 
   const token = localStorage.getItem("token");
 
-  // fetchCart outside of useEffect
+  // FETCH CART
   const fetchCart = async () => {
     if (!token) return;
 
@@ -26,16 +27,14 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // when token is changed (login/logout)
   useEffect(() => {
     if (token) {
       fetchCart();
     } else {
-      setCartItems([]); // logout → cart empty
+      setCartItems([]);
     }
   }, [token]);
-
-  // counter of cart items (SUM OF QUANTITIES)
+  // Count items
   useEffect(() => {
     const count = cartItems.reduce(
       (sum, item) => sum + (item.quantity || 1),
@@ -44,15 +43,9 @@ export const CartProvider = ({ children }) => {
     setCartCount(count);
   }, [cartItems]);
 
-  // ===============================
-  // ADD TO CART (WITH QUANTITY)
-  // ===============================
+  // ADD TO CART
   const addToCart = async (product, size, color, quantity = 1) => {
-    if (!token) {
-      alert("You must be logged in");
-      return;
-    }
-
+    if (!token) return alert("You must be logged in");
     try {
       const res = await fetch("http://localhost:3001/cart/add", {
         method: "POST",
@@ -62,24 +55,28 @@ export const CartProvider = ({ children }) => {
         },
         body: JSON.stringify({
           productId: product._id,
-          size: size || null,
-          color: color || null,
-          quantity: quantity || 1,
+          size,
+          color,
+          quantity,
         }),
       });
 
+      if (!res.ok) return false;
+
       const data = await res.json();
-      setCartItems(data.items || []);
+      setCartItems(data.items);
+      return true;
     } catch (err) {
       console.error(err);
+      return false;
     }
   };
-
-  // ===============================
   // UPDATE QUANTITY
-  // ===============================
   const updateQuantity = async (cartItemId, quantity) => {
-    if (!token) return alert("You must be logged in");
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
 
     try {
       const res = await fetch(
@@ -94,32 +91,51 @@ export const CartProvider = ({ children }) => {
         },
       );
 
+      if (!res.ok) {
+        toast.error("Failed to update quantity");
+        return;
+      }
+
       const data = await res.json();
       setCartItems(data.items || []);
+
+      toast.success("Quantity updated");
     } catch (err) {
       console.error(err);
+      toast.error("Update failed");
     }
   };
 
-  // ===============================
-  // REMOVE FROM CART
-  // ===============================
+  // REMOVE
   const removeFromCart = async (cartItemId) => {
-    if (!token) return alert("You must be logged in");
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
 
     try {
       const res = await fetch(
         `http://localhost:3001/cart/remove/${cartItemId}`,
         {
           method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
       );
 
+      if (!res.ok) {
+        toast.error("Failed to remove item");
+        return;
+      }
+
       const data = await res.json();
       setCartItems(data.items || []);
+
+      toast.success("Item removed");
     } catch (err) {
       console.error(err);
+      toast.error("Remove failed");
     }
   };
 
@@ -130,7 +146,7 @@ export const CartProvider = ({ children }) => {
         cartCount,
         addToCart,
         removeFromCart,
-        updateQuantity, // ✅ added
+        updateQuantity,
       }}
     >
       {children}

@@ -1,14 +1,17 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useState, useEffect } from "react";
+import { FaHeart, FaTrash } from "react-icons/fa";
+import { useFavorites } from "../context/FavoritesContext";
 
 const ShoppingCart = () => {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const { favorites, toggleFavorite } = useFavorites();
 
-  // Local state to handle quantity separately per item
+  // Local quantity state (per cart item)
   const [quantities, setQuantities] = useState({});
 
-  // Initialize quantities when cart changes
+  // Sync local quantities when cartItems change
   useEffect(() => {
     const initialQuantities = {};
     cartItems.forEach((item) => {
@@ -17,19 +20,18 @@ const ShoppingCart = () => {
     setQuantities(initialQuantities);
   }, [cartItems]);
 
-  // Handle quantity change for ONE product only
-  const handleQuantityChange = (id, value) => {
-    const newQuantity = Math.max(1, Number(value));
+  // Handle quantity change
+  const handleQuantityChange = (itemId, newValue) => {
+    const newQuantity = Math.max(1, Number(newValue));
 
+    // Update local state immediately (UI feels fast)
     setQuantities((prev) => ({
       ...prev,
-      [id]: newQuantity,
+      [itemId]: newQuantity,
     }));
 
-    // If you have backend update function
-    if (updateQuantity) {
-      updateQuantity(id, newQuantity);
-    }
+    // Update backend
+    updateQuantity(itemId, newQuantity);
   };
 
   // Calculate total price
@@ -40,7 +42,9 @@ const ShoppingCart = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      {cartItems.length === 0 && <p className="text-lg">Your cart is empty.</p>}
+      {cartItems.length === 0 && (
+        <p className="text-lg text-center">Your cart is empty.</p>
+      )}
 
       {cartItems.map((item) => {
         const quantity = quantities[item._id] || 1;
@@ -50,18 +54,21 @@ const ShoppingCart = () => {
           <div key={item._id} className="flex items-center gap-6 border-b py-6">
             {/* Product Info */}
             <Link
-              to={`/products/${item.product._id}`}
+              to={`/product/${item.product._id}`}
               className="flex items-center gap-4 flex-1"
             >
               <img
-                src={item.product.images[0]}
+                src={item.product.images?.[0]}
                 alt={item.product.name}
                 className="w-24 h-24 object-contain"
               />
 
               <div>
                 <p className="font-semibold text-lg">{item.product.name}</p>
-                <p className="text-gray-500">€{item.product.price}</p>
+
+                <p className="text-gray-500">
+                  €{item.product.price.toFixed(2)}
+                </p>
 
                 {/* Size */}
                 {item.size && (
@@ -90,13 +97,25 @@ const ShoppingCart = () => {
                 )}
               </div>
             </Link>
-
+            {/* Favorite Button */}
+            <button
+              onClick={() => toggleFavorite(item.product)}
+              className="text-xl"
+            >
+              <FaHeart
+                className={
+                  favorites.some((f) => f._id === item.product._id)
+                    ? "text-red-500"
+                    : "text-gray-300 hover:text-red-400"
+                }
+              />
+            </button>
             {/* Quantity Controls */}
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleQuantityChange(item._id, quantity - 1)}
-                  className="px-3 py-1 border rounded"
+                  className="px-3 py-1 border rounded hover:bg-gray-100"
                 >
                   -
                 </button>
@@ -123,13 +142,15 @@ const ShoppingCart = () => {
               <p className="text-sm font-semibold">€{subtotal.toFixed(2)}</p>
             </div>
 
-            {/* Remove */}
-            <button
-              onClick={() => removeFromCart(item._id)}
-              className="text-red-500 hover:underline"
-            >
-              Remove
-            </button>
+            <div className="flex flex-col items-end gap-3">
+              {/* Remove Button */}
+              <button
+                onClick={() => removeFromCart(item._id)}
+                className="text-black-500 hover:underline"
+              >
+                <FaTrash className="inline ml-1" />
+              </button>
+            </div>
           </div>
         );
       })}
